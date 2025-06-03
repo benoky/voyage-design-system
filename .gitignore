@@ -28,3 +28,4 @@ dist-ssr
 *.env.localhost
 *.env.dev
 *.env.prod
+.cursorrules
