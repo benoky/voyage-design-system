@@ -28,7 +28,7 @@ const buttonVariants = cva('flex items-center justify-center rounded-[6px] text-
   },
 });
 
-interface ButtonPropsType
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
@@ -43,7 +43,7 @@ interface ButtonPropsType
  * @param {React.ButtonHTMLAttributes<HTMLButtonElement>} props 버튼 속성 <br>
  * @returns 버튼 컴포넌트 <br>
  */
-const Button = React.forwardRef<HTMLButtonElement, ButtonPropsType>((props, ref) => {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const { className, variant, size, isLoading, children, ...restProps } = props;
 
   return (
@@ -65,4 +65,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonPropsType>((props, ref)
 
 Button.displayName = 'Button';
 
-export default Button;
+export { Button };

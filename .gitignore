@@ -25,7 +25,6 @@ dist-ssr
 
 *storybook.log
 
-*.env.localhost
-*.env.dev
-*.env.prod
 .cursorrules
+
+*.tgz

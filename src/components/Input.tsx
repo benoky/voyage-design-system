@@ -24,14 +24,14 @@ const inputVariants = cva(
   }
 );
 
-type InputVariantsType = VariantProps<typeof inputVariants>;
+export type InputVariants = VariantProps<typeof inputVariants>;
 
-interface InputPropsType extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   labelLocation?: 'top' | 'left';
   helperText?: string;
-  variant?: InputVariantsType['variant'];
-  inputSize?: InputVariantsType['inputSize'];
+  variant?: InputVariants['variant'];
+  inputSize?: InputVariants['inputSize'];
   type?: 'text' | 'password' | 'email' | 'number';
 }
 
@@ -47,7 +47,7 @@ interface InputPropsType extends Omit<React.InputHTMLAttributes<HTMLInputElement
  * @param {React.InputHTMLAttributes<HTMLInputElement>} props 입력 필드 속성 <br>
  * @returns 입력 컴포넌트 <br>
  */
-const Input = React.forwardRef<HTMLInputElement, InputPropsType>((props, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const { className, variant, inputSize, label, labelLocation = 'top', helperText, type, ...restProps } = props;
 
   // 실제 input 타입 계산
@@ -99,4 +99,4 @@ const Input = React.forwardRef<HTMLInputElement, InputPropsType>((props, ref) =>
 
 Input.displayName = 'Input';
 
-export default Input;
+export { Input };

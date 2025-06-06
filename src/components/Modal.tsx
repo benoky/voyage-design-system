@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
-import Button from './Button';
+import { Button } from './Button';
 
 const modalVariants = cva(
   'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-[8px] border border-[#cbd5e1] w-[504px] z-50',
@@ -30,7 +30,7 @@ const overlayVariants = cva('fixed inset-0 bg-black/50 z-40', {
   },
 });
 
-interface ModalProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof modalVariants> {
+export interface ModalProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof modalVariants> {
   title: string;
   description: string;
   open: boolean;
@@ -118,4 +118,4 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
 
 Modal.displayName = 'Modal';
 
-export default Modal;
+export { Modal };

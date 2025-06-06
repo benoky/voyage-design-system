@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { cn } from '@/utils/styleUtils';
-import Button from './Button';
+import { Button } from './Button';
 import { X } from 'lucide-react';
 import { DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, popupVariants, adjustPopupPosition } from '@/utils/popupUtils';
 import { VariantProps } from 'class-variance-authority';
 
-interface PopupProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof popupVariants> {
+export interface PopupProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof popupVariants> {
   open: boolean;
   title?: string;
   onClose?: () => void;
@@ -145,10 +145,10 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
         // initialWidth/Height가 있으면 그 값을 최소 크기로 유지
         // 없으면 콘텐츠 크기 또는 최소 높이 중 큰 값으로 설정
-        setMinDimensions(prev => ({
+        setMinDimensions({
           width: initialWidth || DEFAULT_WIDTH,
           height: initialHeight || Math.max(naturalHeight, MIN_HEIGHT),
-        }));
+        });
 
         // 초기 높이가 지정되지 않았을 때만 콘텐츠 높이로 설정
         if (!initialHeight && resizable) {
@@ -463,4 +463,4 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
 Popup.displayName = 'Popup';
 
-export default Popup;
+export { Popup };

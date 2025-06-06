@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { cn } from '@/utils/styleUtils';
-import Tag from './Tag';
+import { Tag } from './Tag';
 
-interface CardTag {
+export interface CardTag {
   text: string;
   backgroundColor?: string;
   textColor?: string;
 }
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
   tags?: CardTag[];
@@ -84,4 +84,4 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
 Card.displayName = 'Card';
 
-export default Card; 
+export { Card }; 

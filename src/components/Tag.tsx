@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/utils/styleUtils';
 
-interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   backgroundColor?: string;
   textColor?: string;
@@ -64,4 +64,4 @@ const Tag = React.forwardRef<HTMLDivElement, TagProps>(
 
 Tag.displayName = 'Tag';
 
-export default Tag;
+export { Tag };
