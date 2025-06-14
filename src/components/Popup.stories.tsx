@@ -1,8 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import Popup from './Popup';
-import Button from './Button';
-import Input from './Input';
+import { Popup } from './Popup';
+import { Button } from './Button';
+import React from 'react';
 
 const meta: Meta<typeof Popup> = {
   title: 'UI/Popup',

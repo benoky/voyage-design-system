@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import ContextMenu, { MenuItem } from './ContextMenu';
-import Button from './Button';
+import { ContextMenu, MenuItem } from './ContextMenu';
+import { Button } from './Button';
 import { User, LogOut, Settings, FileText, Trash, ExternalLink, Lock } from 'lucide-react';
+import React from 'react';
 
 const meta: Meta<typeof ContextMenu> = {
   title: 'UI/ContextMenu',
