@@ -3,22 +3,7 @@ import { cn } from '@/utils/styleUtils';
 import { Button } from './Button';
 import { X } from 'lucide-react';
 import { DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, popupVariants, adjustPopupPosition } from '@/utils/popupUtils';
-import { VariantProps } from 'class-variance-authority';
-
-export interface PopupProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof popupVariants> {
-  open: boolean;
-  title?: string;
-  onClose?: () => void;
-  resizable?: boolean;
-  initialWidth?: number;
-  initialHeight?: number;
-  onResize?: (width: number, height: number) => void;
-  draggable?: boolean;
-  onMove?: (x: number, y: number) => void;
-  initialX?: number;
-  initialY?: number;
-  children?: React.ReactNode;
-}
+import { PopupProps } from '@/types/popup.types';
 
 /**
  * Popup 컴포넌트
@@ -43,6 +28,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       initialX,
       initialY,
       children,
+      footer,
       ...props
     },
     ref
@@ -145,10 +131,10 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
         // initialWidth/Height가 있으면 그 값을 최소 크기로 유지
         // 없으면 콘텐츠 크기 또는 최소 높이 중 큰 값으로 설정
-        setMinDimensions({
+        setMinDimensions(() => ({
           width: initialWidth || DEFAULT_WIDTH,
           height: initialHeight || Math.max(naturalHeight, MIN_HEIGHT),
-        });
+        }));
 
         // 초기 높이가 지정되지 않았을 때만 콘텐츠 높이로 설정
         if (!initialHeight && resizable) {
@@ -173,12 +159,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
         if (!popupRef.current) return;
 
         const rect = popupRef.current.getBoundingClientRect();
-        const newPosition = adjustPopupPosition(
-          currentPositionRef.current.x,
-          currentPositionRef.current.y,
-          rect.width,
-          rect.height
-        );
+        const newPosition = adjustPopupPosition(currentPositionRef.current.x, currentPositionRef.current.y, rect.width);
 
         // 위치가 변경되었을 때만 업데이트
         if (newPosition.x !== currentPositionRef.current.x || newPosition.y !== currentPositionRef.current.y) {
@@ -300,7 +281,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
         // 화면 경계 확인 및 위치 조정
         const rect = popupRef.current.getBoundingClientRect();
-        const newPosition = adjustPopupPosition(newX, newY, rect.width, rect.height);
+        const newPosition = adjustPopupPosition(newX, newY, rect.width);
 
         // 위치 업데이트 (DOM 직접 조작)
         updatePosition(newPosition, true);
@@ -438,7 +419,14 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
           </div>
 
           {/* 콘텐츠 영역 - 사용자 정의 */}
-          <div className='px-[20px] pb-[20px] flex-1 overflow-hidden min-h-0'>{children}</div>
+          <div className='px-[20px] flex-1 overflow-auto min-h-0'>{children}</div>
+
+          {/* 푸터 영역 - 버튼들이 위치할 고정 영역 */}
+          {footer && (
+            <div className='px-[20px] py-[16px] border-t border-[#f1f5f9] flex-shrink-0 bg-white'>
+              {footer}
+            </div>
+          )}
         </div>
 
         {/* 리사이즈 핸들 - 빗금 모양 */}
@@ -463,4 +451,4 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
 Popup.displayName = 'Popup';
 
-export { Popup };
+export {Popup};

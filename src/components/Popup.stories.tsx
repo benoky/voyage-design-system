@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Popup } from './Popup';
-import { Button } from './Button';
+import {Popup} from './Popup';
+import {Button} from './Button';
 import React from 'react';
 
 const meta: Meta<typeof Popup> = {
@@ -64,6 +64,10 @@ const meta: Meta<typeof Popup> = {
       control: { type: undefined },
       description: '팝업 내부 콘텐츠',
     },
+    footer: {
+      control: { type: undefined },
+      description: '팝업 하단 버튼 영역',
+    },
   },
 };
 
@@ -80,11 +84,15 @@ export const BasicPopup: Story = {
   },
   render: args => (
     <div className='inline-block'>
-      <Popup {...args}>
-        <p className='text-gray-600 mb-4'>이 팝업은 기본적인 내용만 표시합니다.</p>
-        <div className='flex justify-end'>
-          <Button>확인</Button>
-        </div>
+      <Popup 
+        {...args}
+        footer={
+          <div className='flex justify-end'>
+            <Button>확인</Button>
+          </div>
+        }
+      >
+        <p className='text-gray-600'>이 팝업은 기본적인 내용만 표시합니다.</p>
       </Popup>
     </div>
   ),
@@ -107,16 +115,20 @@ export const DraggablePopup: Story = {
       <div className='absolute inset-0 flex items-center justify-center'>
         <p className='text-gray-500'>팝업 헤더를 드래그하여 이동해보세요</p>
       </div>
-      <Popup {...args}>
+      <Popup 
+        {...args}
+        footer={
+          <div className='flex justify-end'>
+            <Button>확인</Button>
+          </div>
+        }
+      >
         <div className='space-y-4'>
           <p className='text-gray-600'>이 팝업은 헤더 부분을 드래그하여 이동할 수 있습니다.</p>
           <p className='text-gray-600'>팝업 상단의 제목 영역을 클릭한 상태로 드래그해보세요.</p>
           <div className='bg-gray-100 p-4 rounded'>
             <p className='text-sm'>드래그 기능 설명</p>
             <p className='text-sm mt-2'>팝업의 헤더 영역을 마우스로 클릭하고 드래그하면 팝업이 이동합니다.</p>
-          </div>
-          <div className='flex justify-end border-t border-[#f1f5f9] pt-4'>
-            <Button>확인</Button>
           </div>
         </div>
       </Popup>
@@ -146,7 +158,15 @@ export const DraggableResizablePopup: Story = {
           팝업 헤더를 드래그하여 이동하고, 우측 하단 모서리를 드래그하여 크기를 조절해보세요
         </p>
       </div>
-      <Popup {...args}>
+      <Popup 
+        {...args}
+        footer={
+          <div className='flex justify-end gap-2'>
+            <Button variant='secondary'>취소</Button>
+            <Button>확인</Button>
+          </div>
+        }
+      >
         <div className='space-y-4'>
           <p className='text-gray-600'>
             이 팝업은 헤더 부분을 드래그하여 이동할 수 있고, 우측 하단을 드래그하여 크기를 조절할 수 있습니다.
@@ -157,12 +177,6 @@ export const DraggableResizablePopup: Story = {
               <li>팝업의 헤더 영역을 마우스로 클릭하고 드래그하면 팝업이 이동합니다.</li>
               <li>팝업의 우측 하단 모서리를 드래그하면 크기를 조절할 수 있습니다.</li>
             </ul>
-          </div>
-          <div className='flex justify-end border-t border-[#f1f5f9] pt-4'>
-            <Button variant='secondary' className='mr-2'>
-              취소
-            </Button>
-            <Button>확인</Button>
           </div>
         </div>
       </Popup>
@@ -183,19 +197,21 @@ export const ResizablePopup: Story = {
   },
   render: args => (
     <div className='inline-block'>
-      <Popup {...args}>
+      <Popup 
+        {...args}
+        footer={
+          <div className='flex justify-end gap-2'>
+            <Button variant='secondary'>취소</Button>
+            <Button>확인</Button>
+          </div>
+        }
+      >
         <div className='space-y-4'>
           <p className='text-gray-600'>이 팝업은 우측 하단 모서리를 드래그하여 크기를 조절할 수 있습니다.</p>
           <p className='text-gray-600'>내용이 많을 경우 자동으로 스크롤됩니다.</p>
           <div className='bg-gray-100 p-4 rounded'>
             <p className='text-sm'>추가 콘텐츠 영역</p>
             <p className='text-sm mt-2'>더 많은 내용을 넣어서 팝업의 크기를 늘려보세요.</p>
-          </div>
-          <div className='flex justify-end border-t border-[#f1f5f9] pt-4'>
-            <Button variant='secondary' className='mr-2'>
-              취소
-            </Button>
-            <Button>확인</Button>
           </div>
         </div>
       </Popup>

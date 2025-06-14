@@ -18,10 +18,9 @@ export const popupVariants = cva('bg-white rounded-[8px] shadow-[0px_0px_25px_rg
  * @param x - X 좌표
  * @param y - Y 좌표
  * @param width - 팝업 너비
- * @param height - 팝업 높이
  * @returns 조정된 X, Y 좌표
  */
-export const adjustPopupPosition = (x: number, y: number, width: number, _height: number) => {
+export const adjustPopupPosition = (x: number, y: number, width: number) => {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
