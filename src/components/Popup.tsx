@@ -163,7 +163,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
           }
         }
       }
-    }, [open, resizable, initialHeight, initialWidth, dimensions.height, title, children]);
+    }, [open, resizable, initialHeight, initialWidth, title, children]);
 
     // 위치 조정 - 팝업이 열렸을 때와 뷰포트 크기가 변경될 때 실행
     React.useEffect(() => {
