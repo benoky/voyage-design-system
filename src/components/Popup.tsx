@@ -3,7 +3,24 @@ import { cn } from '@/utils/styleUtils';
 import { Button } from './Button';
 import { X } from 'lucide-react';
 import { DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, popupVariants, adjustPopupPosition } from '@/utils/popupUtils';
-import { PopupProps } from '@/types/popup.types';
+import { VariantProps } from 'class-variance-authority';
+
+export interface PopupProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof popupVariants> {
+  open: boolean;
+  title?: string;
+  onClose?: () => void;
+  resizable?: boolean;
+  initialWidth?: number;
+  initialHeight?: number;
+  onResize?: (width: number, height: number) => void;
+  draggable?: boolean;
+  onMove?: (x: number, y: number) => void;
+  initialX?: number;
+  initialY?: number;
+  children?: React.ReactNode;
+  footer?: React.ReactNode;
+}
+
 
 /**
  * Popup 컴포넌트
