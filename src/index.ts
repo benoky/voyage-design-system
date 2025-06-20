@@ -20,6 +20,9 @@ export type { PopupProps } from './components/Popup';
 export { Tag } from './components/Tag';
 export type { TagProps } from './components/Tag';
 
+export { Portal } from './components/Portal';
+export type { PortalProps } from './components/Portal';
+
 // Utilities
 export { 
   popupVariants, 
@@ -28,7 +31,7 @@ export {
   MIN_HEIGHT, 
   adjustPopupPosition 
 } from './utils/popupUtils';
-export { cn } from './utils/styleUtils';
+export { cn, useIsomorphicLayoutEffect, useWindow } from './utils/styleUtils';
 
 // Styles
 import './index.css'; 

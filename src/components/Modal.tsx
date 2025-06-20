@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
 import { Button } from './Button';
+import { Portal } from './Portal';
 
 const modalVariants = cva(
   'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-[8px] border border-[#cbd5e1] w-[504px] z-50',
@@ -69,8 +70,12 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     },
     ref
   ) => {
-    // 모달이 열리면 body의 스크롤을 막음
+    // 모달이 열리면 body의 스크롤을 막음 (SSR 호환)
     React.useEffect(() => {
+      if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return;
+      }
+
       if (open) {
         document.body.style.overflow = 'hidden';
       } else {
@@ -78,14 +83,16 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       }
 
       return () => {
-        document.body.style.overflow = '';
+        if (typeof document !== 'undefined') {
+          document.body.style.overflow = '';
+        }
       };
     }, [open]);
 
     if (!open) return null;
 
     return (
-      <>
+      <Portal>
         {/* 백그라운드 오버레이 */}
         <div className={overlayVariants({ visible: open })} />
 
@@ -111,7 +118,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             </div>
           </div>
         </div>
-      </>
+      </Portal>
     );
   }
 );

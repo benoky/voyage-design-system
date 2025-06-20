@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/utils/styleUtils';
 import { Button } from './Button';
+import { Portal } from './Portal';
 import { X } from 'lucide-react';
 import { DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, popupVariants, adjustPopupPosition } from '@/utils/popupUtils';
 import { VariantProps } from 'class-variance-authority';
@@ -62,19 +63,20 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       if (initialX !== undefined && initialY !== undefined) {
         return { x: initialX, y: initialY };
       } else {
+        // SSR 호환: 서버에서는 기본값 사용
+        if (typeof window === 'undefined') {
+          return { x: 0, y: 0 };
+        }
+        
         // 초기 팝업 크기로 중앙 위치 계산
         const width = initialWidth || DEFAULT_WIDTH;
         const height = initialHeight || DEFAULT_WIDTH * 0.75;
-
-        if (typeof window !== 'undefined') {
-          const windowWidth = window.innerWidth;
-          const windowHeight = window.innerHeight;
-          return {
-            x: Math.max(0, (windowWidth - width) / 2),
-            y: Math.max(0, (windowHeight - height) / 2),
-          };
-        }
-        return { x: 0, y: 0 };
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        return {
+          x: Math.max(0, (windowWidth - width) / 2),
+          y: Math.max(0, (windowHeight - height) / 2),
+        };
       }
     });
     const [minDimensions, setMinDimensions] = React.useState({
@@ -168,9 +170,9 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       }
     }, [open, resizable, initialHeight, initialWidth, title, children]);
 
-    // 위치 조정 - 팝업이 열렸을 때와 뷰포트 크기가 변경될 때 실행
+    // 위치 조정 - 팝업이 열렸을 때와 뷰포트 크기가 변경될 때 실행 (SSR 호환)
     React.useEffect(() => {
-      if (!open || position === 'inline' || !draggable || !popupRef.current) return;
+      if (!open || position === 'inline' || !draggable || !popupRef.current || typeof window === 'undefined') return;
 
       const handlePopupPosition = () => {
         if (!popupRef.current) return;
@@ -210,9 +212,9 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       }
     }, [open]);
 
-    // 리사이즈 이벤트 핸들러
+    // 리사이즈 이벤트 핸들러 (SSR 호환)
     React.useEffect(() => {
-      if (!resizable) return;
+      if (!resizable || typeof window === 'undefined' || typeof document === 'undefined') return;
 
       const handleMouseMove = (e: MouseEvent) => {
         if (!isResizing || !popupRef.current) return;
@@ -285,9 +287,9 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       };
     }, [isResizing, resizable, onResize, minDimensions]);
 
-    // 드래그 이벤트 핸들러
+    // 드래그 이벤트 핸들러 (SSR 호환)
     React.useEffect(() => {
-      if (!draggable) return;
+      if (!draggable || typeof window === 'undefined' || typeof document === 'undefined') return;
 
       const handleMouseMove = (e: MouseEvent) => {
         if (!isDragging || !popupRef.current) return;
@@ -370,7 +372,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       e.preventDefault();
     };
 
-    return (
+    const popupContent = (
       <div
         ref={node => {
           // ref를 popupRef와 외부에서 제공된 ref 모두에 연결
@@ -463,6 +465,14 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
         )}
       </div>
     );
+
+    // position이 'inline'인 경우 Portal을 사용하지 않음
+    if (position === 'inline') {
+      return popupContent;
+    }
+
+    // position이 'absolute' 또는 'fixed'인 경우 Portal 사용 (SSR 호환)
+    return <Portal>{popupContent}</Portal>;
   }
 );
 

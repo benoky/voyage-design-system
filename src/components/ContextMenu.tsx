@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
 import { LucideIcon } from 'lucide-react';
+import { Portal } from './Portal';
 
 // ContextMenu 스타일링
 const contextMenuVariants = cva('bg-white', {
@@ -49,7 +50,7 @@ const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
     // 1차원 배열로 변환
     const sections = isItemsNested ? (items as MenuItem[][]) : [items as MenuItem[]];
 
-    return (
+    const contextMenuContent = (
       <div ref={ref} className={cn(contextMenuVariants({ variant, position, className }))} {...props}>
         {/* 제목 영역 (제목이 있는 경우) */}
         {title && (
@@ -99,6 +100,14 @@ const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
         ))}
       </div>
     );
+
+    // position이 'inline'인 경우 Portal을 사용하지 않음
+    if (position === 'inline') {
+      return contextMenuContent;
+    }
+
+    // position이 'absolute' 또는 'fixed'인 경우 Portal 사용 (SSR 호환)
+    return <Portal>{contextMenuContent}</Portal>;
   }
 );
 

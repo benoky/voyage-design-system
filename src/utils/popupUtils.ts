@@ -14,13 +14,18 @@ export const popupVariants = cva('bg-white rounded-[8px] shadow-[0px_0px_25px_rg
 });
 
 /**
- * 팝업 위치를 화면 내로 조정하는 함수
+ * 팝업 위치를 화면 내로 조정하는 함수 (SSR 호환)
  * @param x - X 좌표
  * @param y - Y 좌표
  * @param width - 팝업 너비
  * @returns 조정된 X, Y 좌표
  */
 export const adjustPopupPosition = (x: number, y: number, width: number) => {
+  // SSR 환경에서는 기본값 반환
+  if (typeof window === 'undefined') {
+    return { x: Math.max(0, x), y: Math.max(0, y) };
+  }
+
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
