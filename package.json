@@ -10,11 +10,10 @@
     "dist"
   ],
   "scripts": {
-    "local-sb-start": "storybook dev -p 6006",
-    "dev-sb-build": "storybook build --output-dir storybook-static/dev",
-    "prod-sb-build": "storybook build --output-dir storybook-static/prod --loglevel error",
-    "publish-build": "vite build && tsc -p tsconfig.app.json --emitDeclarationOnly",
-
+    "start:local-sb": "storybook dev -p 6006",
+    "build:dev-sb": "storybook build --output-dir storybook-static/dev",
+    "build:prod-sb": "storybook build --output-dir storybook-static/prod --loglevel error",
+    "build:publish": "vite build && tsc -p tsconfig.app.json --emitDeclarationOnly",
     "check": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings=0 && prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
     "fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\" && eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
