@@ -22,10 +22,9 @@ export type { TagProps } from './components/Tag';
 
 export { Portal } from './components/Portal';
 export type { PortalProps } from './components/Portal';
-
 // Utilities
 export { 
-  popupVariants, 
+  popupVariants,
   DEFAULT_WIDTH, 
   HEADER_HEIGHT, 
   MIN_HEIGHT, 
