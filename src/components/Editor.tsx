@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
-import { Editor as ToastUIEditor } from '@toast-ui/react-editor';
+import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
+import { Editor as ToastUIEditor } from '@toast-ui/editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { cn } from '@/utils/styleUtils';
 
@@ -7,7 +7,7 @@ export interface EditorProps {
   /** 에디터 초기값 */
   initialValue?: string;
   /** 내용 변경 시 호출되는 콜백 함수 */
-  onChange?: () => void;
+  onChange?: (value: string) => void;
   /** 에디터 높이 */
   height?: string;
   /** 에디터 넓이 */
@@ -30,6 +30,25 @@ export interface EditorProps {
   toolbarItems?: string[][];
 }
 
+export interface EditorRef {
+  /** 마크다운 텍스트 가져오기 */
+  getMarkdown: () => string;
+  /** 마크다운 텍스트 설정하기 */
+  setMarkdown: (markdown: string) => void;
+  /** HTML 가져오기 */
+  getHTML: () => string;
+  /** HTML 설정하기 */
+  setHTML: (html: string) => void;
+  /** 텍스트 삽입 */
+  insertText: (text: string) => void;
+  /** 에디터 포커스 */
+  focus: () => void;
+  /** 에디터 블러 */
+  blur: () => void;
+  /** 에디터 인스턴스 가져오기 */
+  getInstance: () => ToastUIEditor | null;
+}
+
 /**
  * Toast UI Editor를 기반으로 한 에디터 컴포넌트
  * @param props - 에디터 컴포넌트 속성
@@ -47,7 +66,7 @@ export interface EditorProps {
  * @param props.toolbarItems - 툴바 아이템
  * @returns React 에디터 컴포넌트
  */
-const Editor = forwardRef<HTMLDivElement, EditorProps>(
+const Editor = forwardRef<EditorRef, EditorProps>(
   (
     {
       initialValue = '',
@@ -66,28 +85,66 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
     },
     ref
   ) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const editorRef = useRef<ToastUIEditor | null>(null);
+
+    useImperativeHandle(ref, () => ({
+      getMarkdown: () => editorRef.current?.getMarkdown() || '',
+      setMarkdown: (markdown: string) => editorRef.current?.setMarkdown(markdown),
+      getHTML: () => editorRef.current?.getHTML() || '',
+      setHTML: (html: string) => editorRef.current?.setHTML(html),
+      insertText: (text: string) => editorRef.current?.insertText(text),
+      focus: () => editorRef.current?.focus(),
+      blur: () => editorRef.current?.blur(),
+      getInstance: () => editorRef.current,
+    }));
+
+    useEffect(() => {
+      if (!containerRef.current) return;
+
+      const editor = new ToastUIEditor({
+        el: containerRef.current,
+        height,
+        initialValue,
+        initialEditType,
+        previewStyle,
+        usageStatistics,
+        placeholder,
+        hideModeSwitch,
+        language,
+        toolbarItems,
+        events: {
+          change: () => {
+            if (onChange && editorRef.current) {
+              onChange(editorRef.current.getMarkdown());
+            }
+          },
+        },
+      });
+
+      editorRef.current = editor;
+
+      return () => {
+        if (editorRef.current) {
+          editorRef.current.destroy();
+          editorRef.current = null;
+        }
+      };
+    }, []);
+
+    // initialValue 변경 감지
+    useEffect(() => {
+      if (editorRef.current && initialValue !== undefined) {
+        const currentValue = editorRef.current.getMarkdown();
+        if (currentValue !== initialValue) {
+          editorRef.current.setMarkdown(initialValue);
+        }
+      }
+    }, [initialValue]);
+
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'border border-gray-300 rounded-lg overflow-hidden',
-          className
-        )}
-        style={{ width }}
-        {...props}
-      >
-        <ToastUIEditor
-          initialValue={initialValue}
-          initialEditType={initialEditType}
-          height={height}
-          onChange={onChange}
-          placeholder={placeholder}
-          hideModeSwitch={hideModeSwitch}
-          usageStatistics={usageStatistics}
-          previewStyle={previewStyle}
-          language={language}
-          toolbarItems={toolbarItems}
-        />
+      <div className={cn('border border-gray-300 rounded-lg overflow-hidden', className)} style={{ width }} {...props}>
+        <div ref={containerRef} />
       </div>
     );
   }
@@ -95,4 +152,4 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
 
 Editor.displayName = 'Editor';
 
-export { Editor }; 
+export { Editor };

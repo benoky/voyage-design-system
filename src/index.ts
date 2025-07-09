@@ -22,15 +22,13 @@ export type { TagProps } from './components/Tag';
 
 export { Portal } from './components/Portal';
 export type { PortalProps } from './components/Portal';
+
+export { Editor } from './components/Editor';
+export type { EditorProps, EditorRef } from './components/Editor';
+
 // Utilities
-export { 
-  popupVariants,
-  DEFAULT_WIDTH, 
-  HEADER_HEIGHT, 
-  MIN_HEIGHT, 
-  adjustPopupPosition 
-} from './utils/popupUtils';
+export { popupVariants, DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, adjustPopupPosition } from './utils/popupUtils';
 export { cn, useIsomorphicLayoutEffect, useWindow } from './utils/styleUtils';
 
 // Styles
-import './index.css'; 
+import './index.css';
