@@ -26,6 +26,9 @@ export type { PortalProps } from './components/Portal';
 export { Editor } from './components/Editor';
 export type { EditorProps, EditorRef } from './components/Editor';
 
+export { Tabs } from './components/Tabs';
+export type { TabsProps, TabItem } from './components/Tabs';
+
 // Utilities
 export { popupVariants, DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, adjustPopupPosition } from './utils/popupUtils';
 export { cn, useIsomorphicLayoutEffect, useWindow } from './utils/styleUtils';
