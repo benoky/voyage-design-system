@@ -26,7 +26,9 @@ export interface MenuItem {
 }
 
 // ContextMenu 인터페이스
-export interface ContextMenuProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof contextMenuVariants> {
+export interface ContextMenuProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof contextMenuVariants> {
   open: boolean;
   title?: string;
   items: MenuItem[] | MenuItem[][];

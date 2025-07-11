@@ -22,7 +22,6 @@ export interface PopupProps extends React.HTMLAttributes<HTMLDivElement>, Varian
   footer?: React.ReactNode;
 }
 
-
 /**
  * Popup 컴포넌트
  * 헤더가 포함된 팝업 컴포넌트입니다. 내용은 children으로 자유롭게 구성할 수 있습니다.
@@ -67,7 +66,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
         if (typeof window === 'undefined') {
           return { x: 0, y: 0 };
         }
-        
+
         // 초기 팝업 크기로 중앙 위치 계산
         const width = initialWidth || DEFAULT_WIDTH;
         const height = initialHeight || DEFAULT_WIDTH * 0.75;
@@ -285,7 +284,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
           animationFrameRef.current = null;
         }
       };
-    }, [isResizing, resizable, onResize, minDimensions]);
+    }, [isResizing, resizable, onResize, minDimensions, isDragging]);
 
     // 드래그 이벤트 핸들러 (SSR 호환)
     React.useEffect(() => {
@@ -340,7 +339,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
           animationFrameRef.current = null;
         }
       };
-    }, [isDragging, draggable, dragOffset, updatePosition, onMove]);
+    }, [isDragging, draggable, dragOffset, updatePosition, onMove, isResizing]);
 
     // 컴포넌트 언마운트 시 애니메이션 프레임 정리
     React.useEffect(() => {
@@ -442,9 +441,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
           {/* 푸터 영역 - 버튼들이 위치할 고정 영역 */}
           {footer && (
-            <div className='px-[20px] py-[16px] border-t border-[#f1f5f9] flex-shrink-0 bg-white'>
-              {footer}
-            </div>
+            <div className='px-[20px] py-[16px] border-t border-[#f1f5f9] flex-shrink-0 bg-white'>{footer}</div>
           )}
         </div>
 
@@ -478,4 +475,4 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
 
 Popup.displayName = 'Popup';
 
-export {Popup};
+export { Popup };

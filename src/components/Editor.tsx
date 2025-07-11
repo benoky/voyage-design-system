@@ -130,7 +130,18 @@ const Editor = forwardRef<EditorRef, EditorProps>(
           editorRef.current = null;
         }
       };
-    }, []);
+    }, [
+      height,
+      initialValue,
+      initialEditType,
+      previewStyle,
+      usageStatistics,
+      placeholder,
+      hideModeSwitch,
+      language,
+      toolbarItems,
+      onChange,
+    ]);
 
     // initialValue 변경 감지
     useEffect(() => {

@@ -36,4 +36,4 @@ const Portal = (props: PortalProps) => {
 
 Portal.displayName = 'Portal';
 
-export { Portal }; 
+export { Portal };
