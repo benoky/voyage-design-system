@@ -29,6 +29,10 @@ export type { EditorProps, EditorRef } from './components/Editor';
 export { Skeleton } from './components/Skeleton';
 export type { SkeletonProps } from './components/Skeleton';
 
+export { Table } from './components/DataTable';
+export type { TableProps, TableColumn } from './components/DataTable';
+
+
 // Utilities
 export { popupVariants, DEFAULT_WIDTH, HEADER_HEIGHT, MIN_HEIGHT, adjustPopupPosition } from './utils/popupUtils';
 export { cn, useIsomorphicLayoutEffect, useWindow } from './utils/styleUtils';
