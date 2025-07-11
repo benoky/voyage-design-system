@@ -15,8 +15,7 @@ export function cn(...inputs: ClassValue[]) {
  * SSR 호환 useLayoutEffect 훅
  * 서버에서는 useEffect를 사용하고, 클라이언트에서는 useLayoutEffect를 사용
  */
-export const useIsomorphicLayoutEffect = 
-  typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+export const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
 /**
  * SSR 환경에서 안전하게 window 객체를 사용하는 훅

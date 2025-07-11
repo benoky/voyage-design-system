@@ -27,7 +27,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    
+
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
