@@ -26,6 +26,9 @@ export type { PortalProps } from './components/Portal';
 export { Editor } from './components/Editor';
 export type { EditorProps, EditorRef } from './components/Editor';
 
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
+
 export { Tabs } from './components/Tabs';
 export type { TabsProps, TabItem } from './components/Tabs';
 
