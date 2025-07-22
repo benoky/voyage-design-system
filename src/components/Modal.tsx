@@ -1,19 +1,49 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { X } from 'lucide-react';
 import { cn } from '@/utils/styleUtils';
 import { Portal } from './Portal';
 
+// Placeholder for X icon
+const X = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    fill='none'
+    height='24'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='2'
+    viewBox='0 0 24 24'
+    width='24'
+    xmlns='http://www.w3.org/2000/svg'
+  >
+    <path d='m18 6-12 12' />
+    <path d='m6 6 12 12' />
+  </svg>
+);
+
+const overlayVariants = cva('fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300', {
+  variants: {
+    blur: {
+      none: 'bg-black/50',
+      sm: 'bg-black/50 backdrop-blur-sm',
+      md: 'bg-black/50 backdrop-blur-md',
+      lg: 'bg-black/50 backdrop-blur-lg',
+    },
+  },
+  defaultVariants: {
+    blur: 'sm',
+  },
+});
+
 const modalVariants = cva(
-  'fixed z-50 gap-4 bg-white p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
+  'relative z-50 grid w-full max-w-lg gap-4 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg animate-in fade-in-0 zoom-in-95',
   {
     variants: {
       position: {
-        center: 'left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] rounded-lg border',
-        top: 'top-0 left-0 right-0 rounded-b-lg border-b border-l border-r',
-        bottom: 'bottom-0 left-0 right-0 rounded-t-lg border-t border-l border-r',
-        left: 'left-0 top-0 bottom-0 rounded-r-lg border-t border-r border-b',
-        right: 'right-0 top-0 bottom-0 rounded-l-lg border-t border-l border-b',
+        center: 'data-[state=open]:slide-in-from-bottom-2',
+        top: 'data-[state=open]:slide-in-from-top-2',
+        bottom: 'data-[state=open]:slide-in-from-bottom-2',
       },
     },
     defaultVariants: {
@@ -22,93 +52,80 @@ const modalVariants = cva(
   }
 );
 
-const overlayVariants = cva('fixed inset-0 bg-black/50 z-40', {
-  variants: {
-    blur: {
-      none: '',
-      sm: 'backdrop-blur-sm',
-      md: 'backdrop-blur-md',
-      lg: 'backdrop-blur-lg',
-    },
-  },
-  defaultVariants: {
-    blur: 'sm',
-  },
-});
-
-export interface ModalProps extends VariantProps<typeof modalVariants>, VariantProps<typeof overlayVariants> {
+export interface ModalProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof modalVariants>,
+    VariantProps<typeof overlayVariants> {
   /**
-   * 모달 열림/닫힘 상태
+   * Whether the modal is open
    */
   open: boolean;
   /**
-   * 모달 닫기 콜백
+   * Function to close the modal
    */
   onClose?: () => void;
   /**
-   * 모달 제목
+   * Modal title
    */
   title?: string;
   /**
-   * 모달 내용
+   * Whether to show close button
    */
-  children: React.ReactNode;
+  showCloseButton?: boolean;
   /**
-   * 오버레이 클릭 시 모달 닫기 여부
+   * Whether clicking overlay closes modal
    */
   closeOnOverlayClick?: boolean;
   /**
-   * ESC 키로 모달 닫기 여부
+   * Whether ESC key closes modal
    */
   closeOnEscape?: boolean;
   /**
-   * 추가 CSS 클래스
-   */
-  className?: string;
-  /**
-   * 오버레이 CSS 클래스
+   * Overlay CSS class name
    */
   overlayClassName?: string;
 }
 
 /**
- * Modal 컴포넌트
- * 화면 위에 오버레이와 함께 표시되는 모달 다이얼로그입니다.
- * SSR 환경에서 안전하게 작동합니다.
+ * Modal component
+ * A dialog box that appears on top of the main content to display important information or collect user input.
  *
- * @param open - 모달 열림/닫힘 상태
- * @param onClose - 모달 닫기 콜백
- * @param title - 모달 제목
- * @param children - 모달 내용
- * @param position - 모달 위치
- * @param blur - 오버레이 블러 효과
- * @param closeOnOverlayClick - 오버레이 클릭 시 모달 닫기 여부
- * @param closeOnEscape - ESC 키로 모달 닫기 여부
- * @param className - 추가 CSS 클래스
- * @param overlayClassName - 오버레이 CSS 클래스
- * @returns Modal 컴포넌트
+ * @param open - Whether the modal is open
+ * @param onClose - Function to close the modal
+ * @param title - Modal title
+ * @param showCloseButton - Whether to show close button
+ * @param position - Modal position
+ * @param blur - Background blur effect
+ * @param closeOnOverlayClick - Whether clicking overlay closes modal
+ * @param closeOnEscape - Whether ESC key closes modal
+ * @param className - Additional CSS classes
+ * @param overlayClassName - Overlay CSS class name
+ * @param children - Modal content
+ * @returns Modal component
  */
 const Modal: React.FC<ModalProps> = ({
   open,
   onClose,
   title,
-  children,
+  showCloseButton = true,
   position,
   blur,
   closeOnOverlayClick = true,
   closeOnEscape = true,
   className,
   overlayClassName,
+  children,
+  ...props
 }) => {
   const [mounted, setMounted] = React.useState(false);
 
-  // SSR 호환성을 위한 마운트 상태 관리
+  // SSR compatibility
   React.useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
-  // ESC 키 이벤트 처리 (SSR 호환)
+  // ESC key handler (SSR safe)
   React.useEffect(() => {
     if (!open || !closeOnEscape || typeof window === 'undefined') return;
 
@@ -122,38 +139,38 @@ const Modal: React.FC<ModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [open, closeOnEscape, onClose]);
 
-  // 바디 스크롤 방지 (SSR 호환)
+  // Body scroll prevention (SSR safe)
   React.useEffect(() => {
     if (!mounted || typeof document === 'undefined') return;
 
     if (open) {
-      // 현재 스크롤 위치 저장
+      // Save current scroll position
       const scrollY = window.pageYOffset;
       const body = document.body;
       const originalOverflow = body.style.overflow;
       const originalPosition = body.style.position;
       const originalTop = body.style.top;
 
-      // 스크롤 방지
+      // Prevent scrolling
       body.style.overflow = 'hidden';
       body.style.position = 'fixed';
       body.style.top = `-${scrollY}px`;
       body.style.width = '100%';
 
       return () => {
-        // 원래 상태 복원
+        // Restore original state
         body.style.overflow = originalOverflow;
         body.style.position = originalPosition;
         body.style.top = originalTop;
         body.style.width = '';
 
-        // 스크롤 위치 복원
+        // Restore scroll position
         window.scrollTo(0, scrollY);
       };
     }
   }, [open, mounted]);
 
-  // SSR 중이거나 아직 마운트되지 않았거나 모달이 닫혀있으면 렌더링하지 않음
+  // Don't render during SSR or when not mounted or when closed
   if (!mounted || !open) {
     return null;
   }
@@ -166,7 +183,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <Portal>
-      {/* 오버레이 */}
+      {/* Overlay */}
       <div
         className={cn(overlayVariants({ blur }), overlayClassName)}
         onClick={handleOverlayClick}
@@ -174,18 +191,21 @@ const Modal: React.FC<ModalProps> = ({
         aria-modal='true'
         aria-labelledby={title ? 'modal-title' : undefined}
       >
-        {/* 모달 콘텐츠 */}
-        <div className={cn(modalVariants({ position }), className)} onClick={e => e.stopPropagation()}>
-          {title && (
-            <div className='flex items-center justify-between mb-4'>
-              <h2 id='modal-title' className='text-lg font-semibold'>
-                {title}
-              </h2>
-              {onClose && (
+        {/* Modal content */}
+        <div className={cn(modalVariants({ position }), className)} onClick={e => e.stopPropagation()} {...props}>
+          {/* Header */}
+          {(title || showCloseButton) && (
+            <div className='flex items-center justify-between'>
+              {title && (
+                <h2 id='modal-title' className='text-lg font-semibold'>
+                  {title}
+                </h2>
+              )}
+              {showCloseButton && onClose && (
                 <button
                   onClick={onClose}
                   className='rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none'
-                  aria-label='모달 닫기'
+                  aria-label='Close modal'
                 >
                   <X className='h-4 w-4' />
                   <span className='sr-only'>Close</span>
@@ -193,7 +213,9 @@ const Modal: React.FC<ModalProps> = ({
               )}
             </div>
           )}
-          <div>{children}</div>
+
+          {/* Content */}
+          <div className='flex-1'>{children}</div>
         </div>
       </div>
     </Portal>

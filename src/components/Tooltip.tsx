@@ -4,17 +4,15 @@ import { cn } from '@/utils/styleUtils';
 import { Portal } from './Portal';
 
 const tooltipVariants = cva(
-  'z-50 overflow-hidden rounded-[4px] px-3 py-1.5 text-xs text-white shadow-md animate-in fade-in-0 zoom-in-95',
+  'z-50 overflow-hidden rounded-[6px] bg-[#1e293b] px-3 py-1.5 text-xs text-white shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
   {
     variants: {
       variant: {
-        default: 'bg-[#0f172a]',
-        dark: 'bg-[#1f2937]',
-        light: 'bg-white text-[#0f172a] border border-[#e5e7eb]',
-        success: 'bg-[#22c55e]',
-        warning: 'bg-[#eab308]',
-        error: 'bg-[#ef4444]',
-        info: 'bg-[#3b82f6]',
+        default: 'bg-[#1e293b] text-white',
+        secondary: 'bg-[#f1f5f9] text-[#0f172a] border border-[#e2e8f0]',
+        success: 'bg-[#22c55e] text-white',
+        warning: 'bg-[#eab308] text-white',
+        error: 'bg-[#ef4444] text-white',
       },
       size: {
         sm: 'px-2 py-1 text-xs',
@@ -29,289 +27,318 @@ const tooltipVariants = cva(
   }
 );
 
-export interface TooltipProps extends VariantProps<typeof tooltipVariants> {
+export interface TooltipProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'>,
+    VariantProps<typeof tooltipVariants> {
   /**
-   * 툴팁 내용
+   * Tooltip content
    */
   content: React.ReactNode;
   /**
-   * 툴팁이 표시될 대상 요소
+   * Child element that triggers the tooltip
    */
   children: React.ReactElement;
   /**
-   * 툴팁 위치
+   * Tooltip position
    */
-  placement?: 'top' | 'bottom' | 'left' | 'right';
+  position?: 'top' | 'bottom' | 'left' | 'right';
   /**
-   * 표시 지연 시간 (ms)
-   */
-  delay?: number;
-  /**
-   * 숨김 지연 시간 (ms)
-   */
-  hideDelay?: number;
-  /**
-   * 비활성화 여부
-   */
-  disabled?: boolean;
-  /**
-   * 클릭으로 표시 여부
+   * Trigger method
    */
   trigger?: 'hover' | 'click' | 'focus';
   /**
-   * 화살표 표시 여부
+   * Tooltip open state (controlled)
    */
-  arrow?: boolean;
+  open?: boolean;
   /**
-   * 최대 너비
+   * Tooltip open state change handler
    */
-  maxWidth?: number;
+  onOpenChange?: (open: boolean) => void;
   /**
-   * 툴팁 클래스명
+   * Delay before showing tooltip (ms)
    */
-  tooltipClassName?: string;
+  delayDuration?: number;
+  /**
+   * Whether to show arrow
+   */
+  showArrow?: boolean;
+  /**
+   * Offset from trigger element
+   */
+  offset?: number;
+  /**
+   * Whether the tooltip is disabled
+   */
+  disabled?: boolean;
 }
 
 /**
- * Tooltip 컴포넌트
- * 요소에 마우스를 올리거나 포커스할 때 추가 정보를 표시하는 컴포넌트입니다.
+ * Tooltip component
+ * A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
  *
- * @param content - 툴팁 내용
- * @param children - 툴팁이 표시될 대상 요소
- * @param placement - 툴팁 위치
- * @param variant - 툴팁 스타일 변형
- * @param size - 툴팁 크기
- * @param delay - 표시 지연 시간
- * @param hideDelay - 숨김 지연 시간
- * @param disabled - 비활성화 여부
- * @param trigger - 표시 트리거
- * @param arrow - 화살표 표시 여부
- * @param maxWidth - 최대 너비
- * @param tooltipClassName - 툴팁 클래스명
- * @returns Tooltip 컴포넌트
+ * @param content - Tooltip content
+ * @param children - Child element that triggers the tooltip
+ * @param position - Tooltip position relative to trigger
+ * @param trigger - How the tooltip is triggered
+ * @param open - Controlled open state
+ * @param onOpenChange - Open state change handler
+ * @param delayDuration - Delay before showing tooltip
+ * @param showArrow - Whether to show arrow pointing to trigger
+ * @param offset - Distance from trigger element
+ * @param disabled - Whether the tooltip is disabled
+ * @param variant - Tooltip style variant
+ * @param size - Tooltip size
+ * @param className - Additional CSS classes
+ * @returns Tooltip component
  */
-const Tooltip: React.FC<TooltipProps> = ({
-  content,
-  children,
-  placement = 'top',
-  variant,
-  size,
-  delay = 200,
-  hideDelay = 0,
-  disabled = false,
-  trigger = 'hover',
-  arrow = true,
-  maxWidth = 300,
-  tooltipClassName,
-}) => {
-  const [isVisible, setIsVisible] = React.useState(false);
-  const [position, setPosition] = React.useState({ x: 0, y: 0 });
-  const triggerRef = React.useRef<HTMLElement>(null);
-  const tooltipRef = React.useRef<HTMLDivElement>(null);
-  const showTimer = React.useRef<NodeJS.Timeout>();
-  const hideTimer = React.useRef<NodeJS.Timeout>();
-
-  // 위치 계산
-  const calculatePosition = React.useCallback(() => {
-    if (!triggerRef.current || !tooltipRef.current) return;
-
-    const triggerRect = triggerRef.current.getBoundingClientRect();
-    const tooltipRect = tooltipRef.current.getBoundingClientRect();
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-
-    let x = 0;
-    let y = 0;
-    const gap = 8; // 화살표와 요소 사이의 간격
-
-    switch (placement) {
-      case 'top':
-        x = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
-        y = triggerRect.top - tooltipRect.height - gap;
-        break;
-      case 'bottom':
-        x = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
-        y = triggerRect.bottom + gap;
-        break;
-      case 'left':
-        x = triggerRect.left - tooltipRect.width - gap;
-        y = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
-        break;
-      case 'right':
-        x = triggerRect.right + gap;
-        y = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
-        break;
-    }
-
-    // 화면 경계 처리
-    const padding = 8;
-    x = Math.max(padding, Math.min(x, window.innerWidth - tooltipRect.width - padding));
-    y = Math.max(padding, Math.min(y, window.innerHeight - tooltipRect.height - padding));
-
-    setPosition({ x: x + scrollX, y: y + scrollY });
-  }, [placement]);
-
-  // 표시
-  const show = React.useCallback(() => {
-    if (disabled) return;
-
-    if (hideTimer.current) {
-      clearTimeout(hideTimer.current);
-      hideTimer.current = undefined;
-    }
-
-    showTimer.current = setTimeout(() => {
-      setIsVisible(true);
-    }, delay);
-  }, [delay, disabled]);
-
-  // 숨김
-  const hide = React.useCallback(() => {
-    if (showTimer.current) {
-      clearTimeout(showTimer.current);
-      showTimer.current = undefined;
-    }
-
-    hideTimer.current = setTimeout(() => {
-      setIsVisible(false);
-    }, hideDelay);
-  }, [hideDelay]);
-
-  // 위치 업데이트
-  React.useEffect(() => {
-    if (isVisible) {
-      calculatePosition();
-    }
-  }, [isVisible, calculatePosition]);
-
-  // 이벤트 핸들러들
-  const handleMouseEnter = () => {
-    if (trigger === 'hover') show();
-  };
-
-  const handleMouseLeave = () => {
-    if (trigger === 'hover') hide();
-  };
-
-  const handleClick = () => {
-    if (trigger === 'click') {
-      if (isVisible) {
-        hide();
-      } else {
-        show();
-      }
-    }
-  };
-
-  const handleFocus = () => {
-    if (trigger === 'focus') show();
-  };
-
-  const handleBlur = () => {
-    if (trigger === 'focus') hide();
-  };
-
-  // 클린업
-  React.useEffect(() => {
-    return () => {
-      if (showTimer.current) clearTimeout(showTimer.current);
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-    };
-  }, []);
-
-  // 자식 요소에 이벤트 핸들러 추가
-  const childElement = React.cloneElement(children, {
-    ref: (node: HTMLElement | null) => {
-      // triggerRef 설정
-      if (triggerRef && 'current' in triggerRef) {
-        (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
-      }
-
-      // 원래 ref도 전달 (안전한 방식으로)
-      const originalRef = (children as any).ref;
-      if (originalRef) {
-        if (typeof originalRef === 'function') {
-          originalRef(node);
-        } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
-          (originalRef as React.MutableRefObject<HTMLElement | null>).current = node;
-        }
-      }
+const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
+  (
+    {
+      content,
+      children,
+      position = 'top',
+      trigger = 'hover',
+      open: controlledOpen,
+      onOpenChange,
+      delayDuration = 500,
+      showArrow = true,
+      offset = 8,
+      disabled = false,
+      variant,
+      size,
+      className,
+      ...props
     },
-    onMouseEnter: handleMouseEnter,
-    onMouseLeave: handleMouseLeave,
-    onClick: handleClick,
-    onFocus: handleFocus,
-    onBlur: handleBlur,
-  });
+    ref
+  ) => {
+    const [internalOpen, setInternalOpen] = React.useState(false);
+    const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
+    const triggerRef = React.useRef<HTMLElement>(null);
+    const tooltipRef = React.useRef<HTMLDivElement>(null);
+    const timeoutRef = React.useRef<NodeJS.Timeout>();
 
-  // 화살표 스타일 계산
-  const getArrowStyle = () => {
-    const arrowSize = 4;
-    const arrowStyles: Record<string, React.CSSProperties> = {
-      top: {
-        bottom: -arrowSize,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderLeft: `${arrowSize}px solid transparent`,
-        borderRight: `${arrowSize}px solid transparent`,
-        borderTop: `${arrowSize}px solid currentColor`,
+    // Determine if tooltip is controlled or uncontrolled
+    const isControlled = controlledOpen !== undefined;
+    const isOpen = isControlled ? controlledOpen : internalOpen;
+
+    // Update open state
+    const updateOpen = React.useCallback(
+      (newOpen: boolean) => {
+        if (disabled) return;
+
+        if (isControlled) {
+          onOpenChange?.(newOpen);
+        } else {
+          setInternalOpen(newOpen);
+          onOpenChange?.(newOpen);
+        }
       },
-      bottom: {
-        top: -arrowSize,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderLeft: `${arrowSize}px solid transparent`,
-        borderRight: `${arrowSize}px solid transparent`,
-        borderBottom: `${arrowSize}px solid currentColor`,
-      },
-      left: {
-        right: -arrowSize,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        borderTop: `${arrowSize}px solid transparent`,
-        borderBottom: `${arrowSize}px solid transparent`,
-        borderLeft: `${arrowSize}px solid currentColor`,
-      },
-      right: {
-        left: -arrowSize,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        borderTop: `${arrowSize}px solid transparent`,
-        borderBottom: `${arrowSize}px solid transparent`,
-        borderRight: `${arrowSize}px solid currentColor`,
-      },
+      [disabled, isControlled, onOpenChange]
+    );
+
+    // Calculate tooltip position
+    const calculatePosition = React.useCallback(() => {
+      if (!triggerRef.current || !tooltipRef.current) return;
+
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const tooltipRect = tooltipRef.current.getBoundingClientRect();
+      const scrollX = window.pageXOffset;
+      const scrollY = window.pageYOffset;
+
+      let x = 0;
+      let y = 0;
+
+      switch (position) {
+        case 'top':
+          x = triggerRect.left + scrollX + triggerRect.width / 2 - tooltipRect.width / 2;
+          y = triggerRect.top + scrollY - tooltipRect.height - offset;
+          break;
+        case 'bottom':
+          x = triggerRect.left + scrollX + triggerRect.width / 2 - tooltipRect.width / 2;
+          y = triggerRect.bottom + scrollY + offset;
+          break;
+        case 'left':
+          x = triggerRect.left + scrollX - tooltipRect.width - offset;
+          y = triggerRect.top + scrollY + triggerRect.height / 2 - tooltipRect.height / 2;
+          break;
+        case 'right':
+          x = triggerRect.right + scrollX + offset;
+          y = triggerRect.top + scrollY + triggerRect.height / 2 - tooltipRect.height / 2;
+          break;
+      }
+
+      // Keep tooltip within viewport
+      const padding = 8;
+      x = Math.max(padding + scrollX, Math.min(x, window.innerWidth - tooltipRect.width - padding + scrollX));
+      y = Math.max(padding + scrollY, Math.min(y, window.innerHeight - tooltipRect.height - padding + scrollY));
+
+      setTooltipPosition({ x, y });
+    }, [position, offset]);
+
+    // Show tooltip with delay
+    const showTooltip = React.useCallback(() => {
+      if (disabled) return;
+
+      if (delayDuration > 0) {
+        timeoutRef.current = setTimeout(() => {
+          updateOpen(true);
+        }, delayDuration);
+      } else {
+        updateOpen(true);
+      }
+    }, [disabled, delayDuration, updateOpen]);
+
+    // Hide tooltip immediately
+    const hideTooltip = React.useCallback(() => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      updateOpen(false);
+    }, [updateOpen]);
+
+    // Toggle tooltip
+    const toggleTooltip = () => {
+      if (isOpen) {
+        hideTooltip();
+      } else {
+        showTooltip();
+      }
     };
 
-    return arrowStyles[placement];
-  };
+    // Event handlers
+    const handleMouseEnter = () => {
+      if (trigger === 'hover') showTooltip();
+    };
 
-  return (
-    <>
-      {childElement}
-      {isVisible && content && (
-        <Portal>
-          <div
-            ref={tooltipRef}
-            className={cn(tooltipVariants({ variant, size }), tooltipClassName)}
-            style={{
-              position: 'absolute',
-              left: position.x,
-              top: position.y,
-              maxWidth: `${maxWidth}px`,
-              zIndex: 50,
-            }}
-            role='tooltip'
-          >
-            {content}
+    const handleMouseLeave = () => {
+      if (trigger === 'hover') hideTooltip();
+    };
 
-            {/* 화살표 */}
-            {arrow && <div className='absolute w-0 h-0 text-current' style={getArrowStyle()} />}
-          </div>
-        </Portal>
-      )}
-    </>
-  );
-};
+    const handleClick = () => {
+      if (trigger === 'click') toggleTooltip();
+    };
+
+    const handleFocus = () => {
+      if (trigger === 'focus') showTooltip();
+    };
+
+    const handleBlur = () => {
+      if (trigger === 'focus') hideTooltip();
+    };
+
+    // Update position when tooltip opens
+    React.useEffect(() => {
+      if (isOpen) {
+        calculatePosition();
+
+        // Recalculate on scroll/resize
+        const handleReposition = () => calculatePosition();
+        window.addEventListener('scroll', handleReposition);
+        window.addEventListener('resize', handleReposition);
+
+        return () => {
+          window.removeEventListener('scroll', handleReposition);
+          window.removeEventListener('resize', handleReposition);
+        };
+      }
+    }, [isOpen, calculatePosition]);
+
+    // Click outside to close
+    React.useEffect(() => {
+      if (isOpen && trigger === 'click') {
+        const handleClickOutside = (event: MouseEvent) => {
+          if (
+            tooltipRef.current &&
+            triggerRef.current &&
+            !tooltipRef.current.contains(event.target as Node) &&
+            !triggerRef.current.contains(event.target as Node)
+          ) {
+            hideTooltip();
+          }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }
+    }, [isOpen, trigger, hideTooltip]);
+
+    // Cleanup timeout
+    React.useEffect(() => {
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Clone child element with event handlers
+    const childElement = React.cloneElement(children, {
+      ref: (node: HTMLElement | null) => {
+        // Set triggerRef
+        if (triggerRef && 'current' in triggerRef) {
+          (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
+        }
+
+        // Forward original ref
+        const originalRef = (children as any).ref;
+        if (originalRef) {
+          if (typeof originalRef === 'function') {
+            originalRef(node);
+          } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
+            (originalRef as React.MutableRefObject<HTMLElement | null>).current = node;
+          }
+        }
+      },
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+      onClick: handleClick,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+    });
+
+    return (
+      <>
+        {childElement}
+
+        {/* Tooltip portal */}
+        {isOpen && (
+          <Portal>
+            <div
+              ref={tooltipRef}
+              className={cn(tooltipVariants({ variant, size }), className)}
+              style={{
+                position: 'absolute',
+                left: tooltipPosition.x,
+                top: tooltipPosition.y,
+                zIndex: 50,
+              }}
+              role='tooltip'
+              {...props}
+            >
+              {content}
+
+              {/* Arrow */}
+              {showArrow && (
+                <div
+                  className={cn(
+                    'absolute w-2 h-2 rotate-45',
+                    variant === 'secondary' ? 'bg-[#f1f5f9] border border-[#e2e8f0]' : 'bg-inherit',
+                    {
+                      'top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2': position === 'top',
+                      'bottom-full left-1/2 transform -translate-x-1/2 translate-y-1/2': position === 'bottom',
+                      'top-1/2 left-full transform -translate-y-1/2 -translate-x-1/2': position === 'left',
+                      'top-1/2 right-full transform -translate-y-1/2 translate-x-1/2': position === 'right',
+                    }
+                  )}
+                />
+              )}
+            </div>
+          </Portal>
+        )}
+      </>
+    );
+  }
+);
 
 Tooltip.displayName = 'Tooltip';
 

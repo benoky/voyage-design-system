@@ -1,115 +1,108 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
-import { LucideIcon } from 'lucide-react';
-import { Portal } from './Portal';
 
-// ContextMenu 스타일링
-const contextMenuVariants = cva('bg-white', {
-  variants: {
-    variant: {
-      default: 'w-[224px] rounded-[6px] shadow-[0px_0px_25px_rgba(0,0,0,0.25)]',
-      compact: 'w-[180px] rounded-[6px] shadow-[0px_0px_25px_rgba(0,0,0,0.25)]',
-      wide: 'w-[260px] rounded-[6px] shadow-[0px_0px_25px_rgba(0,0,0,0.25)]',
+const contextMenuVariants = cva(
+  'min-w-[160px] overflow-hidden rounded-md border bg-white p-1 text-slate-900 shadow-md',
+  {
+    variants: {
+      variant: {
+        default: 'bg-white border-slate-200',
+        dark: 'bg-slate-800 border-slate-700 text-slate-100',
+      },
+      position: {
+        auto: '',
+        top: 'origin-top',
+        bottom: 'origin-bottom',
+        left: 'origin-left',
+        right: 'origin-right',
+      },
     },
-    position: { absolute: 'absolute', fixed: 'fixed', inline: 'relative' },
-  },
-  defaultVariants: { variant: 'default', position: 'absolute' },
-});
+    defaultVariants: {
+      variant: 'default',
+      position: 'auto',
+    },
+  }
+);
 
-// MenuItem 인터페이스
 export interface MenuItem {
+  key: string;
   label: string;
-  icon?: LucideIcon;
-  onClick?: () => void;
+  icon?: React.ReactNode;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
-// ContextMenu 인터페이스
 export interface ContextMenuProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof contextMenuVariants> {
+  /**
+   * Whether the menu is open
+   */
   open: boolean;
+  /**
+   * Menu title (optional)
+   */
   title?: string;
+  /**
+   * Menu items array or array of menu item arrays (separated by dividers)
+   */
   items: MenuItem[] | MenuItem[][];
 }
 
 /**
- * ContextMenu 컴포넌트 <br>
- * 드롭다운 메뉴 또는 컨텍스트 메뉴를 표시합니다. <br>
- * @param {boolean} open - 메뉴가 열려있는지 여부 <br>
- * @param {string} title - 메뉴 제목 (선택적) <br>
- * @param {MenuItem[] | MenuItem[][]} items - 메뉴 아이템 배열 또는 메뉴 아이템 배열의 배열 (구분선으로 구분) <br>
- * @returns ContextMenu 컴포넌트 <br>
+ * ContextMenu component
+ * Displays a dropdown menu or context menu.
+ *
+ * @param open - Whether the menu is open
+ * @param title - Menu title (optional)
+ * @param items - Menu items array or array of menu item arrays (separated by dividers)
+ * @param variant - Menu style variant
+ * @param position - Menu position
+ * @param className - Additional CSS classes
+ * @returns ContextMenu component
  */
 const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
   ({ className, variant, position, open, title, items, ...props }, ref) => {
     if (!open) return null;
 
-    // 아이템이 2차원 배열인지 확인
+    // Check if items is a 2D array
     const isItemsNested = Array.isArray(items[0]);
 
-    // 1차원 배열로 변환
+    // Convert to 1D array
     const sections = isItemsNested ? (items as MenuItem[][]) : [items as MenuItem[]];
 
-    const contextMenuContent = (
-      <div ref={ref} className={cn(contextMenuVariants({ variant, position, className }))} {...props}>
-        {/* 제목 영역 (제목이 있는 경우) */}
+    return (
+      <div ref={ref} className={cn(contextMenuVariants({ variant, position }), className)} {...props}>
         {title && (
           <>
-            <div className='w-full h-[42px]'>
-              <div className='mx-[5px] my-[5px] h-[32px]'>
-                <div className='px-[8px] py-[6px]'>
-                  <p className='text-[14px] font-semibold text-[#334155] leading-[20px]'>{title}</p>
-                </div>
-              </div>
-            </div>
-            {/* 구분선 */}
-            <div className='w-full h-[1px] bg-[#f1f5f9]'></div>
+            <div className='px-2 py-1.5 text-sm font-semibold text-slate-600'>{title}</div>
+            <div className='h-px bg-slate-200 my-1' />
           </>
         )}
 
-        {/* 섹션별 메뉴 아이템 렌더링 */}
         {sections.map((section, sectionIndex) => (
-          <React.Fragment key={`section-${sectionIndex}`}>
-            {/* 첫 번째 섹션이 아니고 제목이 있거나 섹션이 여러 개인 경우에만 구분선 추가 */}
-            {(sectionIndex > 0 || title) && sectionIndex > 0 && <div className='w-full h-[1px] bg-[#f1f5f9]'></div>}
-
-            {/* 메뉴 아이템 렌더링 */}
-            {section.map((item, itemIndex) => {
-              const Icon = item.icon;
-              return (
-                <div className='w-full h-[42px]' key={`item-${sectionIndex}-${itemIndex}`}>
-                  <div className='mx-[5px] my-[5px] h-[32px]'>
-                    <button
-                      className={cn(
-                        'w-full h-full px-[8px] py-[6px] flex items-center rounded-[4px]',
-                        item.disabled
-                          ? 'opacity-50 cursor-not-allowed text-[#94a3b8]'
-                          : 'hover:bg-[#f8fafc] text-[#334155] cursor-pointer'
-                      )}
-                      onClick={item.disabled ? undefined : item.onClick}
-                      disabled={item.disabled}
-                    >
-                      {Icon && <Icon className='w-[16px] h-[16px] text-[#334155] mr-[8px]' />}
-                      <span className='text-[14px] font-medium leading-[20px]'>{item.label}</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <React.Fragment key={sectionIndex}>
+            {section.map(item => (
+              <button
+                key={item.key}
+                className={cn(
+                  'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+                  'hover:bg-slate-100 focus:bg-slate-100',
+                  item.disabled && 'pointer-events-none opacity-50'
+                )}
+                onClick={item.onClick}
+                disabled={item.disabled}
+              >
+                {item.icon && <span className='mr-2 h-4 w-4'>{item.icon}</span>}
+                <span>{item.label}</span>
+              </button>
+            ))}
+            {sectionIndex < sections.length - 1 && <div className='h-px bg-slate-200 my-1' />}
           </React.Fragment>
         ))}
       </div>
     );
-
-    // position이 'inline'인 경우 Portal을 사용하지 않음
-    if (position === 'inline') {
-      return contextMenuContent;
-    }
-
-    // position이 'absolute' 또는 'fixed'인 경우 Portal 사용 (SSR 호환)
-    return <Portal>{contextMenuContent}</Portal>;
   }
 );
 

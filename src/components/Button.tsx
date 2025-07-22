@@ -2,66 +2,59 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
 
-const buttonVariants = cva('flex items-center justify-center rounded-[6px] text-[14px] font-medium transition', {
-  variants: {
-    variant: {
-      primary: 'bg-[#0F172A] border-[#0F172A] border-0 text-[#FFFFFF] hover:cursor-pointer',
-      secondary: 'bg-[#FFFFFF] text-[#0F172A] border border-[#B2B8BF] hover:cursor-pointer',
-      ghost: 'bg-transparent text-[#0F172A] border-0 hover:cursor-pointer',
-      disabled: 'bg-slate-300 text-[#64748B] border-0 border-[#E2E8F0]',
+const buttonVariants = cva(
+  'inline-flex items-center justify-center whitespace-nowrap rounded-[6px] text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default: 'bg-[#0f172a] text-white hover:bg-[#1e293b]',
+        destructive: 'bg-[#ef4444] text-white hover:bg-[#dc2626]',
+        outline: 'border border-[#cbd5e1] bg-white hover:bg-[#f1f5f9] hover:text-[#0f172a]',
+        secondary: 'bg-[#f1f5f9] text-[#0f172a] hover:bg-[#e2e8f0]',
+        ghost: 'hover:bg-[#f1f5f9] hover:text-[#0f172a]',
+        link: 'text-[#0f172a] underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 rounded-[6px] px-3',
+        lg: 'h-11 rounded-[6px] px-8',
+        icon: 'h-10 w-10',
+      },
     },
-    size: {
-      default: 'w-[108px] h-[40px]',
-      small: 'w-[108px] h-[40px]',
-      medium: 'w-[120px] h-[48px]',
-      large: 'w-[132px] h-[56px]',
-      iconSmall: 'w-[40px] h-[40px]',
-      iconMedium: 'w-[70px] h-[70px]',
-      icon: 'p-2',
-      auto: 'px-4 py-2',
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
     },
-  },
-  defaultVariants: {
-    variant: 'primary',
-    size: 'default',
-  },
-});
+  }
+);
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  isLoading?: boolean;
+  /**
+   * Whether the button should display as a link
+   */
+  asChild?: boolean;
 }
 
 /**
- * 버튼 컴포넌트 <br>
- * @param {string} className 추가 클래스 이름 <br>
- * @param {string} variant 버튼 스타일 변형 <br>
- * @param {string} size 버튼 크기 <br>
- * @param {boolean} isLoading 로딩 상태 여부 <br>
- * @param {React.ButtonHTMLAttributes<HTMLButtonElement>} props 버튼 속성 <br>
- * @returns 버튼 컴포넌트 <br>
+ * Button component
+ * A clickable button element with various styling options.
+ *
+ * @param variant - Button style variant
+ * @param size - Button size
+ * @param asChild - Whether the button should display as a link
+ * @param className - Additional CSS classes
+ * @param children - Button content
+ * @returns Button component
  */
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { className, variant, size, isLoading, children, ...restProps } = props;
-
-  return (
-    <button
-      ref={ref}
-      data-slot='button'
-      className={cn(buttonVariants({ variant: restProps.disabled ? 'disabled' : variant, size, className }))}
-      disabled={isLoading || restProps.disabled}
-      {...restProps}
-    >
-      {isLoading ? (
-        <div className='w-5 h-5 border-2 border-t-current border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin'></div>
-      ) : (
-        children
-      )}
-    </button>
-  );
-});
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    return <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+  }
+);
 
 Button.displayName = 'Button';
 
-export { Button };
+// eslint-disable-next-line react-refresh/only-export-components
+export { Button, buttonVariants };

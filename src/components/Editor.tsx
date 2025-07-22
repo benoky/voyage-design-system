@@ -4,67 +4,108 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import { cn } from '@/utils/styleUtils';
 
 export interface EditorProps {
-  /** 에디터 초기값 */
+  /**
+   * Initial editor content
+   */
   initialValue?: string;
-  /** 내용 변경 시 호출되는 콜백 함수 */
+  /**
+   * Callback function called when content changes
+   */
   onChange?: (value: string) => void;
-  /** 에디터 높이 */
+  /**
+   * Editor height
+   */
   height?: string;
-  /** 에디터 넓이 */
+  /**
+   * Editor width
+   */
   width?: string;
-  /** 플레이스홀더 텍스트 */
+  /**
+   * Placeholder text
+   */
   placeholder?: string;
-  /** 초기 편집 타입 */
+  /**
+   * Initial edit type
+   */
   initialEditType?: 'markdown' | 'wysiwyg';
-  /** 모드 스위치 숨김 여부 */
+  /**
+   * Whether to hide mode switch
+   */
   hideModeSwitch?: boolean;
-  /** 추가 클래스명 */
+  /**
+   * Additional CSS class name
+   */
   className?: string;
-  /** 사용 통계 수집 여부 */
+  /**
+   * Whether to collect usage statistics
+   */
   usageStatistics?: boolean;
-  /** 미리보기 스타일 */
+  /**
+   * Preview style
+   */
   previewStyle?: 'tab' | 'vertical';
-  /** 언어 설정 */
+  /**
+   * Language setting
+   */
   language?: string;
-  /** 툴바 아이템 */
+  /**
+   * Toolbar items
+   */
   toolbarItems?: string[][];
 }
 
 export interface EditorRef {
-  /** 마크다운 텍스트 가져오기 */
+  /**
+   * Get markdown text
+   */
   getMarkdown: () => string;
-  /** 마크다운 텍스트 설정하기 */
+  /**
+   * Set markdown text
+   */
   setMarkdown: (markdown: string) => void;
-  /** HTML 가져오기 */
+  /**
+   * Get HTML
+   */
   getHTML: () => string;
-  /** HTML 설정하기 */
+  /**
+   * Set HTML
+   */
   setHTML: (html: string) => void;
-  /** 텍스트 삽입 */
+  /**
+   * Insert text
+   */
   insertText: (text: string) => void;
-  /** 에디터 포커스 */
+  /**
+   * Focus editor
+   */
   focus: () => void;
-  /** 에디터 블러 */
+  /**
+   * Blur editor
+   */
   blur: () => void;
-  /** 에디터 인스턴스 가져오기 */
+  /**
+   * Get editor instance
+   */
   getInstance: () => ToastUIEditor | null;
 }
 
 /**
- * Toast UI Editor를 기반으로 한 에디터 컴포넌트
- * @param props - 에디터 컴포넌트 속성
- * @param props.initialValue - 에디터 초기값
- * @param props.onChange - 내용 변경 시 호출되는 콜백 함수
- * @param props.height - 에디터 높이 (기본값: 400px)
- * @param props.width - 에디터 넓이 (기본값: 100%)
- * @param props.placeholder - 플레이스홀더 텍스트
- * @param props.initialEditType - 초기 편집 타입 (기본값: markdown)
- * @param props.hideModeSwitch - 모드 스위치 숨김 여부 (기본값: false)
- * @param props.className - 추가 클래스명
- * @param props.usageStatistics - 사용 통계 수집 여부 (기본값: false)
- * @param props.previewStyle - 미리보기 스타일 (기본값: vertical)
- * @param props.language - 언어 설정 (기본값: ko-KR)
- * @param props.toolbarItems - 툴바 아이템
- * @returns React 에디터 컴포넌트
+ * Editor component
+ * A rich text editor based on Toast UI Editor.
+ *
+ * @param initialValue - Initial editor content
+ * @param onChange - Callback function called when content changes
+ * @param height - Editor height (default: 400px)
+ * @param width - Editor width (default: 100%)
+ * @param placeholder - Placeholder text
+ * @param initialEditType - Initial edit type (default: markdown)
+ * @param hideModeSwitch - Whether to hide mode switch (default: false)
+ * @param className - Additional CSS class name
+ * @param usageStatistics - Whether to collect usage statistics (default: false)
+ * @param previewStyle - Preview style (default: vertical)
+ * @param language - Language setting (default: ko-KR)
+ * @param toolbarItems - Toolbar items
+ * @returns React editor component
  */
 const Editor = forwardRef<EditorRef, EditorProps>(
   (
@@ -73,7 +114,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(
       onChange,
       height = '400px',
       width = '100%',
-      placeholder = '내용을 입력하세요...',
+      placeholder = 'Enter content...',
       initialEditType = 'markdown',
       hideModeSwitch = false,
       className,
@@ -121,7 +162,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(
         },
       };
 
-      // toolbarItems가 정의되어 있을 때만 추가
+      // Add toolbarItems only when defined
       if (toolbarItems) {
         editorConfig.toolbarItems = toolbarItems;
       }
@@ -149,7 +190,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(
       onChange,
     ]);
 
-    // initialValue 변경 감지
+    // Detect initialValue changes
     useEffect(() => {
       if (editorRef.current && initialValue !== undefined) {
         const currentValue = editorRef.current.getMarkdown();

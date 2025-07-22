@@ -1,51 +1,77 @@
 import { cva } from 'class-variance-authority';
 
-// 기본 너비 상수 정의
-export const DEFAULT_WIDTH = 424;
-// 헤더 높이 상수 정의 (헤더가 보이는 최소 높이)
-export const HEADER_HEIGHT = 60;
-// 최소 높이 상수 정의 (최소 높이 제약)
-export const MIN_HEIGHT = 100;
+// Default popup dimensions
+export const DEFAULT_WIDTH = 400;
+export const HEADER_HEIGHT = 40;
+export const MIN_HEIGHT = 200;
 
-// UI 디자인 기준 스타일링
-export const popupVariants = cva('bg-white rounded-[8px] shadow-[0px_0px_25px_rgba(0,0,0,0.25)]', {
-  variants: { position: { absolute: 'absolute', fixed: 'fixed', inline: 'relative' } },
-  defaultVariants: { position: 'absolute' },
+export const popupVariants = cva('fixed bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden', {
+  variants: {
+    size: {
+      sm: 'w-80 min-h-48',
+      md: 'w-96 min-h-56',
+      lg: 'w-[500px] min-h-64',
+      xl: 'w-[600px] min-h-80',
+      auto: 'min-w-64 min-h-48',
+    },
+    position: {
+      center: 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
+      'top-left': 'top-4 left-4',
+      'top-right': 'top-4 right-4',
+      'bottom-left': 'bottom-4 left-4',
+      'bottom-right': 'bottom-4 right-4',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+    position: 'center',
+  },
 });
 
+export interface PopupPosition {
+  x: number;
+  y: number;
+}
+
+export interface PopupDimensions {
+  width: number;
+  height: number;
+}
+
 /**
- * 팝업 위치를 화면 내로 조정하는 함수 (SSR 호환)
- * @param x - X 좌표
- * @param y - Y 좌표
- * @param width - 팝업 너비
- * @returns 조정된 X, Y 좌표
+ * Adjusts popup position to keep it within the viewport
+ * @param position - Current popup position
+ * @param dimensions - Popup dimensions
+ * @param viewportWidth - Viewport width
+ * @param viewportHeight - Viewport height
+ * @param padding - Minimum padding from viewport edges
+ * @returns Adjusted position
  */
-export const adjustPopupPosition = (x: number, y: number, width: number) => {
-  // SSR 환경에서는 기본값 반환
-  if (typeof window === 'undefined') {
-    return { x: Math.max(0, x), y: Math.max(0, y) };
+export function adjustPopupPosition(
+  position: PopupPosition,
+  dimensions: PopupDimensions,
+  viewportWidth: number = window.innerWidth,
+  viewportHeight: number = window.innerHeight,
+  padding: number = 16
+): PopupPosition {
+  let { x, y } = position;
+  const { width, height } = dimensions;
+
+  // Adjust horizontal position
+  if (x + width > viewportWidth - padding) {
+    x = viewportWidth - width - padding;
+  }
+  if (x < padding) {
+    x = padding;
   }
 
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-
-  // 헤더가 보이도록 최소 HEADER_HEIGHT만큼은 화면 내에 유지
-  let newX = x;
-  let newY = y;
-
-  // 오른쪽 경계 처리 - 최소 기본 너비만큼은 항상 화면에 표시
-  if (x + width > viewportWidth) {
-    newX = Math.max(0, viewportWidth - width);
+  // Adjust vertical position
+  if (y + height > viewportHeight - padding) {
+    y = viewportHeight - height - padding;
+  }
+  if (y < padding) {
+    y = padding;
   }
 
-  // 아래쪽 경계 처리 - 헤더 높이만큼은 항상 화면에 표시
-  if (y + HEADER_HEIGHT > viewportHeight) {
-    newY = Math.max(0, viewportHeight - HEADER_HEIGHT);
-  }
-
-  // 왼쪽과 위쪽 경계 처리
-  newX = Math.max(0, newX);
-  newY = Math.max(0, newY);
-
-  return { x: newX, y: newY };
-};
+  return { x, y };
+}

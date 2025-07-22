@@ -41,64 +41,64 @@ export interface RadioProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'>,
     VariantProps<typeof radioVariants> {
   /**
-   * 라디오 옵션들
+   * Radio options array
    */
   options?: RadioOption[];
   /**
-   * 단일 라디오의 라벨 (options가 없을 때)
+   * Label for single radio (when options is not provided)
    */
   label?: string;
   /**
-   * 라벨 위치
+   * Label position
    */
   labelPosition?: 'left' | 'right';
   /**
-   * 에러 상태 여부
+   * Whether the radio is in an error state
    */
   error?: boolean;
   /**
-   * 도움말 텍스트
+   * Helper text
    */
   helperText?: string;
   /**
-   * 라벨 클래스명
+   * Label CSS class name
    */
   labelClassName?: string;
   /**
-   * 컨테이너 클래스명
+   * Container CSS class name
    */
   containerClassName?: string;
   /**
-   * 옵션들의 방향
+   * Options layout direction
    */
   direction?: 'horizontal' | 'vertical';
   /**
-   * 그룹 변경 핸들러 (options 사용 시)
+   * Group change handler (when using options)
    */
   onValueChange?: (value: string) => void;
 }
 
 /**
- * Radio 컴포넌트
- * 사용자가 여러 옵션 중 하나만 선택할 수 있는 라디오 버튼 컴포넌트입니다.
+ * Radio component
+ * An input component that allows users to select only one option from multiple choices.
  *
- * @param options - 라디오 옵션들 (그룹으로 사용할 때)
- * @param label - 단일 라디오의 라벨
- * @param checked - 체크 상태
- * @param value - 라디오 값
- * @param onChange - 상태 변경 핸들러
- * @param onValueChange - 그룹 변경 핸들러
- * @param variant - 라디오 스타일 변형
- * @param size - 라디오 크기
- * @param labelPosition - 라벨 위치
- * @param direction - 옵션들의 방향
- * @param error - 에러 상태 여부
- * @param helperText - 도움말 텍스트
- * @param disabled - 비활성화 여부
- * @param className - 추가 CSS 클래스
- * @param labelClassName - 라벨 클래스명
- * @param containerClassName - 컨테이너 클래스명
- * @returns Radio 컴포넌트
+ * @param options - Radio options array (when used as a group)
+ * @param label - Label for single radio
+ * @param checked - Checked state
+ * @param value - Radio value
+ * @param onChange - State change handler
+ * @param onValueChange - Group change handler
+ * @param variant - Radio style variant
+ * @param size - Radio size
+ * @param labelPosition - Label position
+ * @param direction - Options layout direction
+ * @param error - Whether the radio is in an error state
+ * @param helperText - Helper text
+ * @param disabled - Whether the radio is disabled
+ * @param className - Additional CSS classes
+ * @param labelClassName - Label CSS class name
+ * @param containerClassName - Container CSS class name
+ * @returns Radio component
  */
 const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   (
@@ -123,7 +123,7 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
     },
     ref
   ) => {
-    // 단일 라디오 버튼 렌더링
+    // Render single radio button
     const renderSingleRadio = (
       radioValue?: string,
       radioLabel?: string,
@@ -154,7 +154,7 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
             {...props}
           />
 
-          {/* 선택 표시 (내부 원) */}
+          {/* Selection indicator (inner circle) */}
           {isChecked && (
             <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
               <div
@@ -195,7 +195,7 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
       );
     };
 
-    // 옵션 그룹이 있는 경우
+    // When options group is provided
     if (options && options.length > 0) {
       return (
         <div className={cn('space-y-2', containerClassName)}>
@@ -222,7 +222,7 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
       );
     }
 
-    // 단일 라디오
+    // Single radio
     return (
       <div className={cn(containerClassName)}>
         {renderSingleRadio(

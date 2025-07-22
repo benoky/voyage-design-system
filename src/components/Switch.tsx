@@ -8,13 +8,14 @@ export interface SwitchProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
 }
 
 /**
- * Switch(슬라이드 토글) 컴포넌트 <br>
- * @param {boolean} checked 스위치의 선택 상태 <br>
- * @param {function} onChange 상태 변경 핸들러 <br>
- * @param {boolean} disabled 비활성화 여부 <br>
- * @param {string} className 추가 클래스 이름 <br>
- * @param {React.ButtonHTMLAttributes<HTMLButtonElement>} props 버튼 속성 <br>
- * @returns Switch 컴포넌트 <br>
+ * Switch component
+ * A slide toggle component for binary choices.
+ *
+ * @param checked - Switch checked state
+ * @param onChange - State change handler
+ * @param disabled - Whether the switch is disabled
+ * @param className - Additional CSS classes
+ * @returns Switch component
  */
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   ({ checked, onChange, disabled, className, ...props }, ref) => {

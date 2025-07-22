@@ -14,7 +14,7 @@ export { ContextMenu } from './components/ContextMenu';
 export type { ContextMenuProps, MenuItem } from './components/ContextMenu';
 
 export { Input } from './components/Input';
-export type { InputProps, InputVariants } from './components/Input';
+export type { InputProps } from './components/Input';
 
 export { Modal } from './components/Modal';
 export type { ModalProps } from './components/Modal';
@@ -43,6 +43,7 @@ export type { SkeletonProps } from './components/Skeleton';
 export { DataTable } from './components/DataTable';
 export type { DataTableProps, DataTableColumn } from './components/DataTable';
 
+// Essential UI Components
 export { Avatar } from './components/Avatar';
 export type { AvatarProps } from './components/Avatar';
 

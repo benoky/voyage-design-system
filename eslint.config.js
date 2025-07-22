@@ -1,36 +1,36 @@
-// ESLint 기본 규칙 가져오기
+// Import basic ESLint rules
 import js from '@eslint/js';
-// 전역 변수 정의 가져오기 (브라우저, 노드 등의 환경에서 사용 가능한 전역 변수)
+// Import global variables definitions (global variables available in browser, node environments)
 import globals from 'globals';
-// React Hooks 관련 규칙 플러그인 가져오기
+// Import React Hooks rules plugin
 import reactHooks from 'eslint-plugin-react-hooks';
-// React Fast Refresh 관련 규칙 플러그인 가져오기
+// Import React Fast Refresh rules plugin
 import reactRefresh from 'eslint-plugin-react-refresh';
-// TypeScript ESLint 설정 가져오기
+// Import TypeScript ESLint configuration
 import tseslint from 'typescript-eslint';
-// Prettier 플러그인 가져오기
+// Import Prettier plugin
 import prettierPlugin from 'eslint-plugin-prettier';
-// React 플러그인 가져오기
+// Import React plugin
 import reactPlugin from 'eslint-plugin-react';
-// Prettier 설정 가져오기 (ESLint와 충돌하는 규칙 비활성화)
+// Import Prettier configuration (disable ESLint rules that conflict with Prettier)
 import prettierEslint from 'eslint-config-prettier';
 
-// Prettier 플러그인 설정
+// Prettier plugin configuration
 const prettierConfig = {
   files: ['**/*.{js,jsx,ts,tsx,css,scss,md}'],
   plugins: {
     prettier: prettierPlugin,
   },
   rules: {
-    // Prettier 규칙을 ESLint 오류로 표시 (Prettier가 우선 적용됨)
+    // Show Prettier rules as ESLint errors (Prettier takes priority)
     'prettier/prettier': ['error'],
-    // Prettier와 충돌할 수 있는 ESLint 규칙 비활성화
+    // Disable ESLint rules that may conflict with Prettier
     'arrow-body-style': 'off',
     'prefer-arrow-callback': 'off',
   },
 };
 
-// React 관련 규칙 설정
+// React configuration
 const reactConfig = {
   files: ['**/*.{jsx,tsx}'],
   plugins: {
@@ -38,64 +38,66 @@ const reactConfig = {
   },
   settings: {
     react: {
-      version: 'detect', // React 버전 자동 감지
+      version: 'detect', // Auto-detect React version
     },
   },
   rules: {
-    // React 17 이상에서는 React import가 필요 없음
-    'react/jsx-uses-react': 'off',
+    // React import is not required in React 17+
     'react/react-in-jsx-scope': 'off',
-    // 추가 React 규칙
-    'react/prop-types': 'off', // TypeScript를 사용하므로 prop-types는 필요 없음
-    'react/jsx-key': 'error', // 배열 렌더링 시 key 속성 필수
+    'react/jsx-uses-react': 'off',
+    // Additional React rules
+    'react/prop-types': 'off', // prop-types not needed when using TypeScript
+    'react/jsx-key': 'error', // key attribute required when rendering arrays
   },
 };
 
-export default tseslint.config(
-  // 무시할 파일 및 디렉토리 설정
-  { ignores: ['dist', 'node_modules', 'build', '**/*.json', '**/*.md', 'public/**'] },
-  // Prettier와 충돌하는 모든 ESLint 규칙 비활성화 (먼저 적용)
+export default [
+  // Configure files and directories to ignore
+  { ignores: ['dist'] },
+  // Disable all ESLint rules that conflict with Prettier (apply first)
   prettierEslint,
-  // React 설정 적용
+  // Apply React configuration
   reactConfig,
-  // Prettier 설정 적용
+  // Apply Prettier configuration
   prettierConfig,
+  // Apply basic recommended JavaScript rules
+  js.configs.recommended,
+  // Apply TypeScript recommended rules to TypeScript files
+  ...tseslint.configs.recommended,
   {
-    // 기본 권장 설정과 TypeScript 권장 설정 확장
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    // TypeScript 및 TSX 파일에만 적용
+    // Apply to TypeScript and TSX files only
     files: ['**/*.{ts,tsx}'],
-    // 언어 옵션 설정
+    // Language options configuration
     languageOptions: {
-      // ECMAScript 2022 문법 사용
+      // Use ECMAScript 2022 syntax
       ecmaVersion: 2022,
-      // 브라우저 환경의 전역 변수 사용 허용
+      // Allow browser environment global variables
       globals: globals.browser,
-      // JSX 지원 활성화
+      // Enable JSX support
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
       },
     },
-    // 사용할 플러그인 설정
+    // Plugin configuration
     plugins: {
-      // React Hooks 규칙 플러그인
+      // React Hooks rules plugin
       'react-hooks': reactHooks,
-      // React Fast Refresh 플러그인
+      // React Fast Refresh plugin
       'react-refresh': reactRefresh,
     },
-    // 적용할 규칙 설정
+    // Rule configuration
     rules: {
-      // React Hooks 권장 규칙 적용 (useEffect, useState 등의 올바른 사용 보장)
+      // Apply React Hooks recommended rules (ensure proper usage of useEffect, useState, etc.)
       ...reactHooks.configs.recommended.rules,
-      // React 컴포넌트만 내보내도록 하는 규칙 (Fast Refresh 최적화)
+      // Rule to only export React components (Fast Refresh optimization)
       'react-refresh/only-export-components': [
-        'warn', // 경고 수준으로 설정
-        { allowConstantExport: true }, // 상수 내보내기 허용
+        'warn', // Set to warning level
+        { allowConstantExport: true }, // Allow exporting constants
       ],
-      '@typescript-eslint/no-explicit-any': 'off', // typescript-eslint 규칙 중 any 타입 비허용 비활성화
-      '@typescript-eslint/no-unused-vars': 'off', // typescript-eslint 규칙 중 사용 하지 않는 변수 에러 처리 비활성화
+      '@typescript-eslint/no-explicit-any': 'off', // Disable typescript-eslint rule that disallows any type
+      '@typescript-eslint/no-unused-vars': 'off', // Disable typescript-eslint rule for unused variables error handling
     },
-  }
-);
+  },
+];

@@ -2,16 +2,24 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
 
-const tableVariants = cva('w-full text-sm', {
+// Helper function to determine default alignment based on data type
+const getDefaultAlign = (value: any): 'left' | 'center' | 'right' => {
+  if (typeof value === 'number') return 'right';
+  if (typeof value === 'boolean') return 'center';
+  return 'left';
+};
+
+const tableVariants = cva('w-full border-collapse text-sm', {
   variants: {
     variant: {
-      default: 'border-collapse',
-      bordered: 'border-collapse border border-[#e2e8f0]',
+      default: 'border border-[#f1f5f9]',
+      bordered: 'border-2 border-[#e2e8f0]',
+      borderless: '',
     },
     size: {
-      default: '',
-      compact: 'text-xs',
-      large: 'text-base',
+      sm: 'text-xs',
+      default: 'text-sm',
+      lg: 'text-base',
     },
   },
   defaultVariants: {
@@ -20,72 +28,83 @@ const tableVariants = cva('w-full text-sm', {
   },
 });
 
-type DataTableVariantsType = VariantProps<typeof tableVariants>;
-type AlignType = 'left' | 'center' | 'right';
-
 export interface DataTableColumn<T = any> {
   key: string;
   title: string;
   dataIndex?: keyof T;
-  render?: (value: any, record: T, index: number) => React.ReactNode;
-  headerAlign?: AlignType;
-  align?: AlignType;
   width?: string | number;
+  align?: 'left' | 'center' | 'right';
+  headerAlign?: 'left' | 'center' | 'right';
+  render?: (value: any, record: T, index: number) => React.ReactNode;
   className?: string;
   headerClassName?: string;
 }
 
 export interface DataTableProps<T = any>
-  extends DataTableVariantsType,
+  extends VariantProps<typeof tableVariants>,
     Omit<React.TableHTMLAttributes<HTMLTableElement>, 'size'> {
+  /**
+   * Table column configuration
+   */
   columns: DataTableColumn<T>[];
+  /**
+   * Table data
+   */
   data: T[];
+  /**
+   * Header CSS class name
+   */
   headerClassName?: string;
+  /**
+   * Body CSS class name
+   */
   bodyClassName?: string;
+  /**
+   * Row CSS class name or function
+   */
   rowClassName?: string | ((record: T, index: number) => string);
-  maxHeight?: string | number;
+  /**
+   * Maximum height with scroll
+   */
+  maxHeight?: string;
+  /**
+   * Loading state
+   */
   loading?: boolean;
+  /**
+   * Empty data text
+   */
   emptyText?: string;
+  /**
+   * Whether to show header
+   */
   showHeader?: boolean;
+  /**
+   * Striped style
+   */
   striped?: boolean;
+  /**
+   * Hover effect
+   */
   hoverable?: boolean;
 }
 
-// 정렬 클래스 매핑
-const getAlignClass = (align: AlignType = 'left'): string => {
-  switch (align) {
-    case 'center':
-      return 'text-center';
-    case 'right':
-      return 'text-right';
-    case 'left':
-    default:
-      return 'text-left';
-  }
-};
-
-// 기본 정렬 결정 로직
-const getDefaultAlign = (dataType: any): AlignType => {
-  if (typeof dataType === 'number') return 'right';
-  if (typeof dataType === 'boolean') return 'center';
-  return 'left';
-};
-
 /**
- * 테이블 컴포넌트 <br>
- * @param {DataTableColumn[]} columns 테이블 컬럼 설정 <br>
- * @param {any[]} data 테이블 데이터 <br>
- * @param {string} variant 테이블 스타일 변형 <br>
- * @param {string} size 테이블 크기 <br>
- * @param {string} className 추가 클래스 이름 <br>
- * @param {string} maxHeight 최대 높이 (스크롤) <br>
- * @param {boolean} loading 로딩 상태 <br>
- * @param {string} emptyText 빈 데이터 텍스트 <br>
- * @param {boolean} showHeader 헤더 표시 여부 <br>
- * @param {boolean} striped 줄무늬 스타일 <br>
- * @param {boolean} hoverable 호버 효과 <br>
- * @param {React.TableHTMLAttributes<HTMLTableElement>} props 테이블 속성 <br>
- * @returns 테이블 컴포넌트 <br>
+ * DataTable component
+ * A table component for displaying structured data.
+ *
+ * @param columns - Table column configuration
+ * @param data - Table data
+ * @param variant - Table style variant
+ * @param size - Table size
+ * @param className - Additional CSS classes
+ * @param maxHeight - Maximum height with scroll
+ * @param loading - Loading state
+ * @param emptyText - Empty data text
+ * @param showHeader - Whether to show header
+ * @param striped - Striped style
+ * @param hoverable - Hover effect
+ * @returns DataTable component
  */
 const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
   <T extends Record<string, any>>(
@@ -100,7 +119,7 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
       rowClassName,
       maxHeight,
       loading = false,
-      emptyText = '데이터가 없습니다',
+      emptyText = 'No data available',
       showHeader = true,
       striped = false,
       hoverable = true,
@@ -108,7 +127,7 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
     }: DataTableProps<T>,
     ref: React.Ref<HTMLTableElement>
   ) => {
-    // 컬럼별 기본 정렬 계산
+    // Calculate default alignment for each column
     const processedColumns = React.useMemo(() => {
       return columns.map(column => {
         const sampleData = data.length > 0 && column.dataIndex ? data[0][column.dataIndex] : null;
@@ -116,8 +135,8 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
 
         return {
           ...column,
-          headerAlign: column.headerAlign || 'left', // 헤더는 기본적으로 왼쪽 정렬
-          align: column.align || defaultAlign, // 데이터는 타입에 따라 자동 결정
+          headerAlign: column.headerAlign || 'left', // Header defaults to left alignment
+          align: column.align || defaultAlign, // Data alignment determined by type
         };
       });
     }, [columns, data]);
@@ -141,16 +160,16 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
     const tableContent = (
       <table ref={ref} className={cn(tableVariants({ variant, size }), className)} {...props}>
         {showHeader && (
-          <thead>
-            <tr className='border-b border-[#e2e8f0]'>
+          <thead className={cn('bg-[#f8fafc] border-b-2 border-[#e2e8f0]', headerClassName)}>
+            <tr>
               {processedColumns.map(column => (
                 <th
                   key={column.key}
                   className={cn(
-                    'p-2 text-[#64748b] font-medium',
-                    getAlignClass(column.headerAlign),
-                    column.headerClassName,
-                    headerClassName
+                    'px-4 py-3 text-left font-semibold text-[#0f172a]',
+                    column.headerAlign === 'center' && 'text-center',
+                    column.headerAlign === 'right' && 'text-right',
+                    column.headerClassName
                   )}
                   style={{ width: column.width }}
                 >
@@ -160,16 +179,16 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
             </tr>
           </thead>
         )}
-        <tbody className={bodyClassName}>
+        <tbody className={cn(bodyClassName)}>
           {loading ? (
             <tr>
-              <td colSpan={columns.length} className='p-8 text-center text-[#64748b]'>
-                로딩 중...
+              <td colSpan={columns.length} className='px-4 py-8 text-center text-[#64748b]'>
+                Loading...
               </td>
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className='p-8 text-center text-[#64748b]'>
+              <td colSpan={columns.length} className='px-4 py-8 text-center text-[#64748b]'>
                 {emptyText}
               </td>
             </tr>
@@ -179,8 +198,12 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
                 {processedColumns.map(column => (
                   <td
                     key={column.key}
-                    className={cn('p-2 text-[#0f172a]', getAlignClass(column.align), column.className)}
-                    style={{ width: column.width }}
+                    className={cn(
+                      'px-4 py-3 text-[#0f172a]',
+                      column.align === 'center' && 'text-center',
+                      column.align === 'right' && 'text-right',
+                      column.className
+                    )}
                   >
                     {renderCell(column, record, index)}
                   </td>
@@ -194,10 +217,7 @@ const DataTable = React.forwardRef<HTMLTableElement, DataTableProps<any>>(
 
     if (maxHeight) {
       return (
-        <div
-          className='overflow-auto border border-[#e2e8f0] rounded-[6px]'
-          style={{ maxHeight: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight }}
-        >
+        <div className='overflow-auto border border-[#f1f5f9] rounded-lg' style={{ maxHeight }}>
           {tableContent}
         </div>
       );

@@ -39,53 +39,53 @@ export interface CheckboxProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof checkboxVariants> {
   /**
-   * 라벨 텍스트
+   * Label text
    */
   label?: string;
   /**
-   * 라벨 위치
+   * Label position
    */
   labelPosition?: 'left' | 'right';
   /**
-   * 에러 상태 여부
+   * Whether the checkbox is in an error state
    */
   error?: boolean;
   /**
-   * 도움말 텍스트
+   * Helper text
    */
   helperText?: string;
   /**
-   * 중간 상태 (indeterminate)
+   * Indeterminate state (partially checked)
    */
   indeterminate?: boolean;
   /**
-   * 라벨 클래스명
+   * Label CSS class name
    */
   labelClassName?: string;
   /**
-   * 컨테이너 클래스명
+   * Container CSS class name
    */
   containerClassName?: string;
 }
 
 /**
- * Checkbox 컴포넌트
- * 사용자가 하나 이상의 옵션을 선택할 수 있는 체크박스 입력 컴포넌트입니다.
+ * Checkbox component
+ * An input component that allows users to select one or more options.
  *
- * @param checked - 체크 상태
- * @param onChange - 상태 변경 핸들러
- * @param variant - 체크박스 스타일 변형
- * @param size - 체크박스 크기
- * @param label - 라벨 텍스트
- * @param labelPosition - 라벨 위치
- * @param error - 에러 상태 여부
- * @param helperText - 도움말 텍스트
- * @param indeterminate - 중간 상태
- * @param disabled - 비활성화 여부
- * @param className - 추가 CSS 클래스
- * @param labelClassName - 라벨 클래스명
- * @param containerClassName - 컨테이너 클래스명
- * @returns Checkbox 컴포넌트
+ * @param checked - Checked state
+ * @param onChange - State change handler
+ * @param variant - Checkbox style variant
+ * @param size - Checkbox size
+ * @param label - Label text
+ * @param labelPosition - Label position
+ * @param error - Whether the checkbox is in an error state
+ * @param helperText - Helper text
+ * @param indeterminate - Indeterminate state
+ * @param disabled - Whether the checkbox is disabled
+ * @param className - Additional CSS classes
+ * @param labelClassName - Label CSS class name
+ * @param containerClassName - Container CSS class name
+ * @returns Checkbox component
  */
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   (
@@ -107,10 +107,10 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
 
-    // ref 연결
+    // Connect ref
     React.useImperativeHandle(ref, () => inputRef.current!);
 
-    // indeterminate 상태 설정
+    // Set indeterminate state
     React.useEffect(() => {
       if (inputRef.current) {
         inputRef.current.indeterminate = indeterminate || false;
@@ -135,7 +135,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           {...props}
         />
 
-        {/* 체크 아이콘 */}
+        {/* Check icon */}
         {(checked || indeterminate) && (
           <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
             {indeterminate ? (

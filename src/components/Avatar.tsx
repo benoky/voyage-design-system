@@ -30,47 +30,47 @@ const avatarImageVariants = cva('w-full h-full object-cover');
 
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof avatarVariants> {
   /**
-   * 아바타 이미지 URL
+   * Avatar image URL
    */
   src?: string;
   /**
-   * 이미지 alt 텍스트
+   * Image alt text
    */
   alt?: string;
   /**
-   * 이미지가 없을 때 표시할 fallback 텍스트 (보통 이니셜)
+   * Fallback text displayed when image is not available (usually initials)
    */
   fallback?: string;
   /**
-   * 커스텀 fallback 컨텐츠
+   * Custom fallback content
    */
   fallbackContent?: React.ReactNode;
   /**
-   * 이미지 로드 실패 시 호출되는 콜백
+   * Callback function called when image fails to load
    */
   onImageError?: () => void;
 }
 
 /**
- * Avatar 컴포넌트
- * 사용자 프로필 이미지나 이니셜을 표시하는 컴포넌트입니다.
+ * Avatar component
+ * Displays user profile images or initials.
  *
- * @param src - 아바타 이미지 URL
- * @param alt - 이미지 alt 텍스트
- * @param fallback - 이미지가 없을 때 표시할 fallback 텍스트
- * @param fallbackContent - 커스텀 fallback 컨텐츠
- * @param size - 아바타 크기
- * @param shape - 아바타 모양 (circle 또는 square)
- * @param className - 추가 CSS 클래스
- * @param onImageError - 이미지 로드 실패 시 호출되는 콜백
- * @returns Avatar 컴포넌트
+ * @param src - Avatar image URL
+ * @param alt - Image alt text
+ * @param fallback - Fallback text when image is not available
+ * @param fallbackContent - Custom fallback content
+ * @param size - Avatar size
+ * @param shape - Avatar shape (circle or square)
+ * @param className - Additional CSS classes
+ * @param onImageError - Callback function called when image fails to load
+ * @returns Avatar component
  */
 const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
   ({ src, alt, fallback, fallbackContent, size, shape, className, onImageError, ...props }, ref) => {
     const [imageError, setImageError] = React.useState(false);
     const [imageLoaded, setImageLoaded] = React.useState(false);
 
-    // src가 변경되면 에러 상태 리셋
+    // Reset error state when src changes
     React.useEffect(() => {
       setImageError(false);
       setImageLoaded(false);
@@ -87,7 +87,7 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
 
     const showFallback = !src || imageError || !imageLoaded;
 
-    // fallback 텍스트에서 이니셜 생성
+    // Generate initials from fallback text
     const getInitials = (text: string) => {
       return text
         .split(' ')
@@ -97,7 +97,7 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         .toUpperCase();
     };
 
-    // fallback 배경색 생성 (텍스트 기반)
+    // Generate fallback background color based on text
     const getFallbackColor = (text: string) => {
       const colors = [
         'bg-[#ef4444]', // red
