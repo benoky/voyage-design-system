@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/utils/styleUtils';
 
-export interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   backgroundColor?: string;
   textColor?: string;
@@ -11,16 +11,16 @@ export interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * Tag 컴포넌트 <br>
- * @param {ReactNode} children - 태그에 표시될 텍스트 <br>
- * @param {string} backgroundColor - 태그 배경색 <br>
- * @param {string} textColor - 태그 텍스트 색상 <br>
- * @param {boolean} autoWidth - 태그의 너비를 자동으로 조정할지 여부 <br>
- * @param {string} minWidth - 태그의 최소 너비 (autoWidth가 true일 때 유효) <br>
- * @param {string} width - 태그의 고정 너비 (autoWidth가 false일 때 유효) <br>
- * @returns Tag 컴포넌트
+ * Badge 컴포넌트 <br>
+ * @param {ReactNode} children - Badge에 표시될 텍스트 <br>
+ * @param {string} backgroundColor - Badge 배경색 <br>
+ * @param {string} textColor - Badge 텍스트 색상 <br>
+ * @param {boolean} autoWidth - Badge의 너비를 자동으로 조정할지 여부 <br>
+ * @param {string} minWidth - Badge의 최소 너비 (autoWidth가 true일 때 유효) <br>
+ * @param {string} width - Badge의 고정 너비 (autoWidth가 false일 때 유효) <br>
+ * @returns Badge 컴포넌트
  */
-const Tag = React.forwardRef<HTMLDivElement, TagProps>(
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
   (
     {
       children,
@@ -62,6 +62,6 @@ const Tag = React.forwardRef<HTMLDivElement, TagProps>(
   }
 );
 
-Tag.displayName = 'Tag';
+Badge.displayName = 'Badge';
 
-export { Tag };
+export { Badge };
