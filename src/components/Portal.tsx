@@ -3,34 +3,43 @@ import { createPortal } from 'react-dom';
 
 export interface PortalProps {
   children: React.ReactNode;
-  container?: Element | DocumentFragment;
-  enabled?: boolean;
+  /**
+   * 포털 대상 컨테이너 (기본값: document.body)
+   */
+  container?: Element | null;
 }
 
 /**
- * SSR 호환 Portal 컴포넌트
- * 서버에서는 children을 그대로 렌더링하고, 클라이언트에서는 Portal을 사용
- * @param children - 포털로 전달할 컴포넌트
+ * Portal 컴포넌트
+ * 자식 요소를 DOM의 다른 위치에 렌더링합니다.
+ * SSR 환경에서 안전하게 작동합니다.
+ *
+ * @param children - 포털로 렌더링할 자식 요소
  * @param container - 포털 대상 컨테이너 (기본값: document.body)
- * @param enabled - 포털 사용 여부 (기본값: true)
  * @returns Portal 컴포넌트
  */
-const Portal = (props: PortalProps) => {
-  const { children, container, enabled = true } = props;
+const Portal: React.FC<PortalProps> = ({ children, container }) => {
   const [mounted, setMounted] = React.useState(false);
+  const [portalContainer, setPortalContainer] = React.useState<Element | null>(null);
 
   React.useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
+    // SSR 환경에서는 document가 없으므로 클라이언트에서만 실행
+    if (typeof document !== 'undefined') {
+      const targetContainer = container || document.body;
+      setPortalContainer(targetContainer);
+      setMounted(true);
+    }
 
-  // SSR에서는 포털을 사용하지 않고 그대로 렌더링
-  if (!mounted || !enabled || typeof window === 'undefined') {
-    return <>{children}</>;
+    return () => {
+      setMounted(false);
+    };
+  }, [container]);
+
+  // SSR 중이거나 아직 마운트되지 않은 경우 null 반환
+  if (!mounted || !portalContainer) {
+    return null;
   }
 
-  // 클라이언트에서는 포털 사용
-  const portalContainer = container || document.body;
   return createPortal(children, portalContainer);
 };
 

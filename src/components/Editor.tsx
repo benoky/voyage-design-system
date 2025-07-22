@@ -102,7 +102,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(
     useEffect(() => {
       if (!containerRef.current) return;
 
-      const editor = new ToastUIEditor({
+      const editorConfig: any = {
         el: containerRef.current,
         height,
         initialValue,
@@ -112,7 +112,6 @@ const Editor = forwardRef<EditorRef, EditorProps>(
         placeholder,
         hideModeSwitch,
         language,
-        toolbarItems,
         events: {
           change: () => {
             if (onChange && editorRef.current) {
@@ -120,7 +119,14 @@ const Editor = forwardRef<EditorRef, EditorProps>(
             }
           },
         },
-      });
+      };
+
+      // toolbarItems가 정의되어 있을 때만 추가
+      if (toolbarItems) {
+        editorConfig.toolbarItems = toolbarItems;
+      }
+
+      const editor = new ToastUIEditor(editorConfig);
 
       editorRef.current = editor;
 

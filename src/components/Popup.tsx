@@ -374,12 +374,14 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
     const popupContent = (
       <div
         ref={node => {
-          // ref를 popupRef와 외부에서 제공된 ref 모두에 연결
-          popupRef.current = node;
+          if (popupRef && typeof popupRef === 'object' && popupRef !== null) {
+            // MutableRefObject로 타입 단언
+            (popupRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          }
           if (typeof ref === 'function') {
             ref(node);
-          } else if (ref) {
-            ref.current = node;
+          } else if (ref && typeof ref === 'object' && ref !== null) {
+            (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
           }
         }}
         className={cn(
