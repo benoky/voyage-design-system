@@ -1,7 +1,7 @@
 {
   "name": "voyage-design-system",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -76,10 +76,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/voyage-design-system"
+    "url": "https://github.com/benoky/voyage-design-system"
   },
   "bugs": {
-    "url": "https://github.com/your-org/voyage-design-system/issues"
+    "url": "https://github.com/benoky/voyage-design-system/issues"
   },
   "license": "MIT",
   "engines": {
