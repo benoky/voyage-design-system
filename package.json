@@ -27,10 +27,8 @@
   ],
   "scripts": {
     "build:publish": "vite build && tsc -p tsconfig.app.json --emitDeclarationOnly",
-    "build:analyze": "vite build --mode analyze",
     "check": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings=0 && prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
-    "fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\" && eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
-    "type-check": "tsc --noEmit"
+    "fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\" && eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "dependencies": {
     "@toast-ui/editor": "^3.2.2",
@@ -63,7 +61,6 @@
     "globals": "^16.1.0",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
-    "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^4.1.7",
     "terser": "^5.43.1",
     "typescript": "~5.8.3",
@@ -85,7 +82,6 @@
   "bugs": {
     "url": "https://github.com/your-org/voyage-design-system/issues"
   },
-  "homepage": "https://github.com/your-org/voyage-design-system#readme",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0",
