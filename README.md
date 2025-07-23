@@ -251,58 +251,6 @@ module.exports = {
   },
 };
 ```
-
-## 🔧 Development
-
-### Prerequisites
-
-- Node.js 18.0.0 or higher
-- npm 8.0.0 or higher
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/your-org/voyage-design-system.git
-cd voyage-design-system
-
-# Install dependencies
-npm install
-
-# Run type checking
-npm run type-check
-
-# Run linting and formatting
-npm run check
-
-# Fix linting and formatting issues
-npm run fix
-
-# Build the library
-npm run build:publish
-```
-
-### Scripts
-
-- `npm run build:publish` - Build the library for production
-- `npm run check` - Run ESLint and Prettier checks
-- `npm run fix` - Fix ESLint and Prettier issues
-- `npm run type-check` - Run TypeScript type checking
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/new-component`
-3. Make your changes
-4. Run tests and checks: `npm run check`
-5. Commit your changes: `git commit -m 'feat: add new component'`
-6. Push to the branch: `git push origin feature/new-component`
-7. Submit a pull request
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
