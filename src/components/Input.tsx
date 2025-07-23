@@ -3,100 +3,173 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
 
 const inputVariants = cva(
-  'bg-white border rounded-[6px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 disabled:opacity-50 disabled:cursor-not-allowed font-normal',
+  'w-full border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all',
   {
     variants: {
       variant: {
-        default: 'border-[#cbd5e1] placeholder-[#94a3b8]',
-        error: 'border-[#ef4444] border-1 focus:ring-red-500/20 focus:border-red-500 placeholder-[#94a3b8]',
+        default: 'bg-white',
+        filled: 'bg-gray-50',
+        outline: 'bg-transparent border-2',
       },
-      inputSize: {
-        default: 'w-full max-w-[384px] h-[40px] px-[12px] py-[8px] text-[16px] leading-[24px]',
-        sm: 'w-full max-w-[276px] h-[32px] px-[10px] py-[6px] text-[14px] leading-[20px]',
-        lg: 'w-full max-w-[450px] h-[48px] px-[14px] py-[10px] text-[18px] leading-[28px]',
-        auto: 'w-full h-[36px] px-[12px] py-[8px] text-[14px] leading-[20px]',
+      size: {
+        sm: 'px-3 py-2 text-sm',
+        default: 'px-4 py-3 text-base',
+        lg: 'px-4 py-4 text-lg',
+      },
+      state: {
+        default: 'border-gray-300',
+        error: 'border-red-500 focus:ring-red-500 focus:border-red-500',
+        success: 'border-green-500 focus:ring-green-500 focus:border-green-500',
+        disabled: 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed',
       },
     },
     defaultVariants: {
       variant: 'default',
-      inputSize: 'default',
+      size: 'default',
+      state: 'default',
     },
   }
 );
 
-type InputVariantsType = VariantProps<typeof inputVariants>;
-
-interface InputPropsType extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
+    VariantProps<typeof inputVariants> {
+  /**
+   * Input label
+   */
   label?: string;
-  labelLocation?: 'top' | 'left';
+  /**
+   * Helper text
+   */
   helperText?: string;
-  variant?: InputVariantsType['variant'];
-  inputSize?: InputVariantsType['inputSize'];
-  type?: 'text' | 'password' | 'email' | 'number';
+  /**
+   * Error message
+   */
+  error?: string;
+  /**
+   * Whether the input is in an error state
+   */
+  isError?: boolean;
+  /**
+   * Icon displayed at the start of the input
+   */
+  startIcon?: React.ReactNode;
+  /**
+   * Icon displayed at the end of the input
+   */
+  endIcon?: React.ReactNode;
+  /**
+   * Container CSS class name
+   */
+  containerClassName?: string;
+  /**
+   * Label CSS class name
+   */
+  labelClassName?: string;
 }
 
 /**
- * 입력 컴포넌트 <br>
- * @param {string} className 추가 클래스 이름 <br>
- * @param {string} variant 입력 필드 스타일 변형 <br>
- * @param {string} inputSize 입력 필드 크기 <br>
- * @param {string} label 라벨 텍스트 <br>
- * @param {string} labelLocation 라벨 위치 (top 또는 left) <br>
- * @param {string} helperText 도움말 텍스트 <br>
- * @param {string} type 입력 필드 타입 <br>
- * @param {React.InputHTMLAttributes<HTMLInputElement>} props 입력 필드 속성 <br>
- * @returns 입력 컴포넌트 <br>
+ * Input component
+ * A text input field with label, icons, and error states.
+ *
+ * @param label - Input label
+ * @param placeholder - Input placeholder
+ * @param value - Input value
+ * @param onChange - Value change handler
+ * @param variant - Input style variant
+ * @param size - Input size
+ * @param state - Input state (error, success, etc.)
+ * @param isError - Whether the input is in an error state
+ * @param error - Error message
+ * @param helperText - Helper text
+ * @param startIcon - Icon at the start of the input
+ * @param endIcon - Icon at the end of the input
+ * @param disabled - Whether the input is disabled
+ * @param className - Additional CSS classes
+ * @param containerClassName - Container CSS class name
+ * @param labelClassName - Label CSS class name
+ * @returns Input component
  */
-const Input = React.forwardRef<HTMLInputElement, InputPropsType>((props, ref) => {
-  const { className, variant, inputSize, label, labelLocation = 'top', helperText, type, ...restProps } = props;
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      className,
+      type = 'text',
+      variant,
+      size,
+      state,
+      label,
+      helperText,
+      error,
+      isError,
+      startIcon,
+      endIcon,
+      containerClassName,
+      labelClassName,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    // Determine input state
+    const inputState = disabled ? 'disabled' : isError || error ? 'error' : state;
+    const hasIcons = startIcon || endIcon;
 
-  // 실제 input 타입 계산
-  const inputType = type === 'password' ? 'text' : type;
-
-  // variant에 따른 helperText 색상 설정
-  const helperTextColorClass = variant === 'error' ? 'text-[#ef4444]' : 'text-[#64748b]';
-
-  // label 스타일 정의 - 공통 스타일과 위치별 추가 스타일
-  const labelBaseStyle = 'text-[14px] font-medium text-[#0f172a] leading-[20px]';
-  const labelPositionStyle =
-    labelLocation === 'left' ? 'min-w-[120px] text-right whitespace-nowrap mr-[8px]' : 'text-left w-full mb-[6px]';
-
-  return (
-    <div className='w-full'>
-      <div
-        className={
-          labelLocation === 'left' ? 'flex flex-row items-center flex-wrap sm:flex-nowrap' : 'flex flex-col w-full'
-        }
-      >
+    return (
+      <div className={cn('w-full', containerClassName)}>
+        {/* Label */}
         {label && (
-          <label className={cn(labelBaseStyle, labelPositionStyle)} htmlFor={restProps.id}>
+          <label
+            className={cn(
+              'block text-sm font-medium text-gray-700 mb-1',
+              disabled && 'text-gray-500',
+              isError && 'text-red-600',
+              labelClassName
+            )}
+            htmlFor={props.id}
+          >
             {label}
           </label>
         )}
-        <div className={labelLocation === 'left' ? 'flex-1' : 'flex w-full'}>
-          <div className='relative w-full'>
-            <input
-              ref={ref}
-              type={inputType}
-              className={cn(inputVariants({ variant, inputSize, className }))}
-              {...restProps}
-            />
-          </div>
+
+        {/* Input container */}
+        <div className='relative'>
+          {/* Start icon */}
+          {startIcon && (
+            <div className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400'>{startIcon}</div>
+          )}
+
+          {/* Input */}
+          <input
+            type={type}
+            className={cn(
+              inputVariants({ variant, size, state: inputState }),
+              hasIcons && startIcon && 'pl-10',
+              hasIcons && endIcon && 'pr-10',
+              className
+            )}
+            ref={ref}
+            disabled={disabled}
+            {...props}
+          />
+
+          {/* End icon */}
+          {endIcon && (
+            <div className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400'>{endIcon}</div>
+          )}
         </div>
+
+        {/* Helper text or error message */}
+        {(helperText || error) && (
+          <p className={cn('mt-1 text-sm', error || isError ? 'text-red-600' : 'text-gray-500')}>
+            {error || helperText}
+          </p>
+        )}
       </div>
-      {helperText ? (
-        <p
-          className={`text-[14px] ${helperTextColorClass} font-normal leading-[20px] mt-[4px] text-left ${
-            labelLocation === 'left' ? 'ml-[128px]' : ''
-          }`}
-        >
-          {helperText}
-        </p>
-      ) : null}
-    </div>
-  );
-});
+    );
+  }
+);
 
 Input.displayName = 'Input';
 
-export default Input;
+export { Input };
