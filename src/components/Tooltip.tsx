@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
-import { Portal } from './Portal';
 
 const tooltipVariants = cva(
-  'z-50 overflow-hidden rounded-[6px] bg-[#1e293b] px-3 py-1.5 text-xs text-white shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+  'z-50 rounded-[6px] bg-[#1e293b] px-3 py-1.5 text-xs text-white shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
   {
     variants: {
       variant: {
@@ -112,10 +111,19 @@ const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
     ref
   ) => {
     const [internalOpen, setInternalOpen] = React.useState(false);
-    const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
+    const [tooltipStyle, setTooltipStyle] = React.useState<React.CSSProperties>({
+      position: 'fixed',
+      left: 0,
+      top: 0,
+      transform: 'translate(-50%, -100%)',
+      zIndex: 50,
+      pointerEvents: 'none',
+      visibility: 'hidden',
+    });
     const triggerRef = React.useRef<HTMLElement>(null);
     const tooltipRef = React.useRef<HTMLDivElement>(null);
     const timeoutRef = React.useRef<NodeJS.Timeout>();
+    const isFirstRender = React.useRef(true);
 
     // Determine if tooltip is controlled or uncontrolled
     const isControlled = controlledOpen !== undefined;
@@ -142,37 +150,51 @@ const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
 
       const triggerRect = triggerRef.current.getBoundingClientRect();
       const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const scrollX = window.pageXOffset;
-      const scrollY = window.pageYOffset;
 
-      let x = 0;
-      let y = 0;
+      let left = 0;
+      let top = 0;
+      let transform = '';
 
       switch (position) {
         case 'top':
-          x = triggerRect.left + scrollX + triggerRect.width / 2 - tooltipRect.width / 2;
-          y = triggerRect.top + scrollY - tooltipRect.height - offset;
+          left = triggerRect.left + triggerRect.width / 2;
+          top = triggerRect.top - offset;
+          transform = 'translate(-50%, -100%)';
           break;
         case 'bottom':
-          x = triggerRect.left + scrollX + triggerRect.width / 2 - tooltipRect.width / 2;
-          y = triggerRect.bottom + scrollY + offset;
+          left = triggerRect.left + triggerRect.width / 2;
+          top = triggerRect.bottom + offset;
+          transform = 'translate(-50%, 0)';
           break;
         case 'left':
-          x = triggerRect.left + scrollX - tooltipRect.width - offset;
-          y = triggerRect.top + scrollY + triggerRect.height / 2 - tooltipRect.height / 2;
+          left = triggerRect.left - offset;
+          top = triggerRect.top + triggerRect.height / 2;
+          transform = 'translate(-100%, -50%)';
           break;
         case 'right':
-          x = triggerRect.right + scrollX + offset;
-          y = triggerRect.top + scrollY + triggerRect.height / 2 - tooltipRect.height / 2;
+          left = triggerRect.right + offset;
+          top = triggerRect.top + triggerRect.height / 2;
+          transform = 'translate(0, -50%)';
           break;
       }
 
-      // Keep tooltip within viewport
+      // Viewport area check
       const padding = 8;
-      x = Math.max(padding + scrollX, Math.min(x, window.innerWidth - tooltipRect.width - padding + scrollX));
-      y = Math.max(padding + scrollY, Math.min(y, window.innerHeight - tooltipRect.height - padding + scrollY));
+      const maxLeft = window.innerWidth - tooltipRect.width - padding;
+      const maxTop = window.innerHeight - tooltipRect.height - padding;
 
-      setTooltipPosition({ x, y });
+      left = Math.max(padding, Math.min(left, maxLeft));
+      top = Math.max(padding, Math.min(top, maxTop));
+
+      setTooltipStyle({
+        position: 'fixed',
+        left,
+        top,
+        transform,
+        zIndex: 50,
+        pointerEvents: 'none',
+        visibility: 'visible',
+      });
     }, [position, offset]);
 
     // Show tooltip with delay
@@ -229,16 +251,42 @@ const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
     // Update position when tooltip opens
     React.useEffect(() => {
       if (isOpen) {
-        calculatePosition();
+        // 첫 번째 렌더링 시에는 즉시 계산
+        if (isFirstRender.current) {
+          calculatePosition();
+          isFirstRender.current = false;
+        } else {
+          // 이후에는 약간의 지연을 두고 계산
+          const timer = setTimeout(() => {
+            calculatePosition();
+          }, 10);
 
-        // Recalculate on scroll/resize
-        const handleReposition = () => calculatePosition();
-        window.addEventListener('scroll', handleReposition);
-        window.addEventListener('resize', handleReposition);
+          return () => clearTimeout(timer);
+        }
+      }
+    }, [isOpen, calculatePosition]);
+
+    // Recalculate on scroll/resize
+    React.useEffect(() => {
+      if (isOpen) {
+        const handleReposition = () => {
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
+          timeoutRef.current = setTimeout(() => {
+            calculatePosition();
+          }, 16);
+        };
+
+        window.addEventListener('scroll', handleReposition, { passive: true });
+        window.addEventListener('resize', handleReposition, { passive: true });
 
         return () => {
           window.removeEventListener('scroll', handleReposition);
           window.removeEventListener('resize', handleReposition);
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
         };
       }
     }, [isOpen, calculatePosition]);
@@ -274,12 +322,10 @@ const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
     // Clone child element with event handlers
     const childElement = React.cloneElement(children, {
       ref: (node: HTMLElement | null) => {
-        // Set triggerRef
         if (triggerRef && 'current' in triggerRef) {
           (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
         }
 
-        // Forward original ref
         const originalRef = (children as any).ref;
         if (originalRef) {
           if (typeof originalRef === 'function') {
@@ -300,41 +346,35 @@ const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       <>
         {childElement}
 
-        {/* Tooltip portal */}
-        {isOpen && (
-          <Portal>
-            <div
-              ref={tooltipRef}
-              className={cn(tooltipVariants({ variant, size }), className)}
-              style={{
-                position: 'absolute',
-                left: tooltipPosition.x,
-                top: tooltipPosition.y,
-                zIndex: 50,
-              }}
-              role='tooltip'
-              {...props}
-            >
-              {content}
+        {/* Tooltip */}
+        <div
+          ref={tooltipRef}
+          className={cn(tooltipVariants({ variant, size }), className)}
+          style={{
+            ...tooltipStyle,
+            visibility: isOpen ? 'visible' : 'hidden',
+          }}
+          role='tooltip'
+          {...props}
+        >
+          {content}
 
-              {/* Arrow */}
-              {showArrow && (
-                <div
-                  className={cn(
-                    'absolute w-2 h-2 rotate-45',
-                    variant === 'secondary' ? 'bg-[#f1f5f9] border border-[#e2e8f0]' : 'bg-inherit',
-                    {
-                      'top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2': position === 'top',
-                      'bottom-full left-1/2 transform -translate-x-1/2 translate-y-1/2': position === 'bottom',
-                      'top-1/2 left-full transform -translate-y-1/2 -translate-x-1/2': position === 'left',
-                      'top-1/2 right-full transform -translate-y-1/2 translate-x-1/2': position === 'right',
-                    }
-                  )}
-                />
+          {/* Arrow */}
+          {showArrow && (
+            <div
+              className={cn(
+                'absolute w-3 h-3 rotate-45',
+                variant === 'secondary' ? 'bg-[#f1f5f9] border border-[#e2e8f0]' : 'bg-[#1e293b]',
+                {
+                  'top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2': position === 'top',
+                  'bottom-full left-1/2 transform -translate-x-1/2 translate-y-1/2': position === 'bottom',
+                  'top-1/2 left-full transform -translate-y-1/2 -translate-x-1/2': position === 'left',
+                  'top-1/2 right-full transform -translate-y-1/2 translate-x-1/2': position === 'right',
+                }
               )}
-            </div>
-          </Portal>
-        )}
+            />
+          )}
+        </div>
       </>
     );
   }
