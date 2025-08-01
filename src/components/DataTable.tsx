@@ -28,13 +28,15 @@ const tableVariants = cva('w-full border-collapse text-sm', {
   },
 });
 
+export type AlignType = 'left' | 'center' | 'right';
+
 export interface DataTableColumn<T = any> {
   key: string;
   title: string;
   dataIndex?: keyof T;
   width?: string | number;
-  align?: 'left' | 'center' | 'right';
-  headerAlign?: 'left' | 'center' | 'right';
+  align?: AlignType;
+  headerAlign?: AlignType;
   render?: (value: any, record: T, index: number) => React.ReactNode;
   className?: string;
   headerClassName?: string;
