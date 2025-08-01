@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/styleUtils';
-import { Portal } from './Portal';
 import { Button } from './Button';
 
 const modalVariants = cva(
-  'relative z-50 w-full max-w-lg border border-border bg-white shadow-lg duration-200 sm:rounded-lg animate-in fade-in-0 zoom-in-95',
+  'fixed z-50 w-full max-w-lg border border-border bg-white shadow-lg duration-200 sm:rounded-lg animate-in fade-in-0 zoom-in-95',
   {
     variants: {
       variant: {
@@ -57,6 +56,7 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement>, Varian
   /** Modal description or content */
   description: React.ReactNode;
 }
+
 /**
  * Modal component
  * A reusable dialog component supporting 'alert' and 'confirm' variants.
@@ -64,7 +64,7 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement>, Varian
  * - 'alert': shows only the confirm button.
  * - 'confirm': shows both confirm and cancel buttons.
  *
- * The component uses a Portal to render outside the DOM hierarchy.
+ * The component renders in the center of the screen.
  *
  * @param variant - Modal variant type
  * @param open - Whether the modal is open
@@ -79,14 +79,22 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement>, Varian
  * @param className - Additional className for modal container
  * @returns Rendered Modal element if `open` is true; otherwise null
  */
-
 const Modal = React.forwardRef<HTMLDivElement, ModalProps>((ModalProps: ModalProps, ref) => {
   if (!ModalProps.open) return null;
 
   return (
-    <Portal>
+    <>
       <div className={overlayVariants({ visible: ModalProps.open })} />
-      <div ref={ref} className={cn(modalVariants({ variant: ModalProps.variant }), ModalProps.className)}>
+      <div
+        ref={ref}
+        className={cn(modalVariants({ variant: ModalProps.variant }), ModalProps.className)}
+        style={{
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 50,
+        }}
+      >
         <div className='p-[20px] text-left'>
           <h2 className='text-[24px] font-semibold text-[#0f172a] leading-[32px] tracking-[-0.144px] mb-[8px]'>
             {ModalProps.title}
@@ -106,7 +114,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>((ModalProps: ModalPro
           </div>
         </div>
       </div>
-    </Portal>
+    </>
   );
 });
 
