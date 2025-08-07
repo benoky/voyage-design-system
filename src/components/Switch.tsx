@@ -29,7 +29,7 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         ref={ref}
         type='button'
         className={cn(
-          'w-11 h-6 flex items-center rounded-full transition-colors duration-200',
+          'w-11 h-6 flex items-center rounded-full transition-colors duration-200 cursor-pointer',
           checked ? 'bg-[#0f172a]' : 'bg-[#e2e8f0]',
           disabled ? 'opacity-40 cursor-not-allowed' : '',
           className
