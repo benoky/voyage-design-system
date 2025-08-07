@@ -1,11 +1,17 @@
 # Voyage Design System
 
-> A modern, comprehensive React component library built with TypeScript and Tailwind CSS
+> A simple, comprehensive React component library built with TypeScript and Tailwind CSS
 
 [![npm version](https://img.shields.io/npm/v/voyage-design-system.svg)](https://www.npmjs.com/package/voyage-design-system)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8+-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.0+-blue.svg)](https://reactjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## 📦 Links
+
+- **NPM Package**: [voyage-design-system](https://www.npmjs.com/package/voyage-design-system)
+- **GitHub Repository**: [voyage-design-system](https://github.com/your-username/voyage-design-system)
+- **Documentation**: [voyage-ui-docs](https://voyage-ui-docs.vercel.app)
 
 ## ✨ Features
 
@@ -81,26 +87,18 @@ function App() {
 
 ## 📚 Components
 
-### Core Components
+### Form Components
 
 | Component | Description | Key Features |
 |-----------|-------------|--------------|
 | **Button** | Clickable button element | Multiple variants, sizes, loading states |
 | **Input** | Text input field | Labels, validation, icons, different states |
-| **Card** | Content container | Flexible layout, hover effects |
-| **Modal** | Dialog overlay | Focus management, escape key, backdrop click |
 | **Select** | Dropdown selection | Searchable, multi-select, custom options |
-| **Tabs** | Tabbed navigation | Controlled/uncontrolled, disabled tabs |
-| **DataTable** | Data display table | Sorting, pagination, custom cells |
-
-### Form Components
-
-| Component | Description | Key Features |
-|-----------|-------------|--------------|
 | **Checkbox** | Checkbox input | Indeterminate state, custom icons |
 | **Radio** | Radio button input | Group support, custom styling |
-| **Textarea** | Multi-line text input | Auto-resize, character limit |
 | **Switch** | Toggle switch | Controlled/uncontrolled, custom labels |
+| **Textarea** | Multi-line text input | Auto-resize, character limit |
+| **Editor** | Rich text editor | WYSIWYG, markdown support, toolbar |
 
 ### Display Components
 
@@ -108,23 +106,36 @@ function App() {
 |-----------|-------------|--------------|
 | **Avatar** | User profile image | Fallback text, error handling, shapes |
 | **Badge** | Status indicator | Dot mode, count mode, variants |
+| **DataTable** | Data display table | Sorting, pagination, custom cells |
+
+### Layout Components
+
+| Component | Description | Key Features |
+|-----------|-------------|--------------|
+| **Tabs** | Tabbed navigation | Controlled/uncontrolled, disabled tabs |
+
+### Panel Components
+
+| Component | Description | Key Features |
+|-----------|-------------|--------------|
+| **Card** | Content container | Flexible layout, hover effects |
+
+### Feedback Components
+
+| Component | Description | Key Features |
+|-----------|-------------|--------------|
 | **Progress** | Progress indicator | Determinate/indeterminate, custom labels |
 | **Skeleton** | Loading placeholder | Custom dimensions, animations |
+
+### Overlay Components
+
+| Component | Description | Key Features |
+|-----------|-------------|--------------|
+| **Modal** | Dialog overlay | Focus management, escape key, backdrop click |
 | **Tooltip** | Hover information | Positioning, delays, custom triggers |
-
-### Layout & Navigation
-
-| Component | Description | Key Features |
-|-----------|-------------|--------------|
-| **ContextMenu** | Right-click menu | Nested items, dividers, icons |
-| **Portal** | DOM portal utility | Render outside component tree |
 | **Popup** | Floating content | Positioning, draggable, resizable |
+| **ContextMenu** | Right-click menu | Nested items, dividers, icons |
 
-### Advanced Components
-
-| Component | Description | Key Features |
-|-----------|-------------|--------------|
-| **Editor** | Rich text editor | WYSIWYG, markdown support, toolbar |
 
 ## 💡 Usage Examples
 
