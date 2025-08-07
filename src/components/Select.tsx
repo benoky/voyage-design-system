@@ -4,7 +4,7 @@ import { cn } from '@/utils/styleUtils';
 import { ChevronDown } from 'lucide-react';
 
 const selectVariants = cva(
-  'bg-white border rounded-[6px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 disabled:opacity-50 disabled:cursor-not-allowed font-normal appearance-none cursor-pointer',
+  'bg-white border rounded-[6px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 disabled:opacity-50 disabled:cursor-not-allowed font-normal appearance-none cursor-pointer hover:border-[#94a3b8]',
   {
     variants: {
       variant: {

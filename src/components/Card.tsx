@@ -8,6 +8,7 @@ const cardVariants = cva('rounded-lg border bg-card text-card-foreground shadow-
       default: 'bg-white border-[#e5e7eb]',
       outline: 'border-2 border-[#e5e7eb]',
       ghost: 'border-transparent shadow-none',
+      clickable: 'bg-white border-[#e5e7eb] cursor-pointer hover:shadow-md transition-shadow',
     },
     size: {
       default: 'p-6',
