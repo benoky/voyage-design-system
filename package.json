@@ -87,6 +87,7 @@
     "type": "git",
     "url": "https://github.com/benoky/voyage-design-system"
   },
+  "homepage": "https://voyage-ui-docs.vercel.app",
   "bugs": {
     "url": "https://github.com/benoky/voyage-design-system/issues"
   },
